@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"regexp"
 	"strconv"
@@ -141,27 +142,34 @@ func (c *Collector) parseCPULoad(cpuloadStr string) (float64, float64, float64, 
 	return load1, load5, load15, nil
 }
 
-// parseMemory parses the memory string and returns total and free memory in bytes
+// parseMemory parses the memory string and returns total and free memory in bytes.
 // Example input: "228428 kB total memory, 161732 kB free (70 %)"
-func (c *Collector) parseMemory(memoryStr string) (float64, float64) {
+// Returns an error if the memory string cannot be parsed.
+func (c *Collector) parseMemory(memoryStr string) (float64, float64, error) {
 	// Extract total memory (first number)
 	totalRe := regexp.MustCompile(`(\d+)\s+kB\s+total`)
 	totalMatches := totalRe.FindStringSubmatch(memoryStr)
-	totalMemoryKB := 0.0
-	if len(totalMatches) > 1 {
-		totalMemoryKB, _ = strconv.ParseFloat(totalMatches[1], 64)
+	if len(totalMatches) < 2 {
+		return 0, 0, fmt.Errorf("failed to parse total memory: %q", memoryStr)
+	}
+	totalMemoryKB, err := strconv.ParseFloat(totalMatches[1], 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to parse total memory as float: %v", err)
 	}
 
 	// Extract free memory (second number)
 	freeRe := regexp.MustCompile(`(\d+)\s+kB\s+free`)
 	freeMatches := freeRe.FindStringSubmatch(memoryStr)
-	freeMemoryKB := 0.0
-	if len(freeMatches) > 1 {
-		freeMemoryKB, _ = strconv.ParseFloat(freeMatches[1], 64)
+	if len(freeMatches) < 2 {
+		return 0, 0, fmt.Errorf("failed to parse free memory: %q", memoryStr)
+	}
+	freeMemoryKB, err := strconv.ParseFloat(freeMatches[1], 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("failed to parse free memory as float: %v", err)
 	}
 
 	// Convert from KB to bytes
-	return totalMemoryKB * 1024, freeMemoryKB * 1024
+	return totalMemoryKB * 1024, freeMemoryKB * 1024, nil
 }
 
 // Collect implements prometheus.Collector
@@ -242,22 +250,22 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 		// Extract and parse memory information
 		if memoryStr, ok := system["memory"].(string); ok {
-			totalBytes, freeBytes := c.parseMemory(memoryStr)
-			if totalBytes > 0 {
+			totalBytes, freeBytes, err := c.parseMemory(memoryStr)
+			if err == nil {
 				ch <- prometheus.MustNewConstMetric(
 					c.systemMemoryBytes.desc,
 					c.systemMemoryBytes.valueType,
 					totalBytes,
 					host,
 				)
-			}
-			if freeBytes > 0 {
 				ch <- prometheus.MustNewConstMetric(
 					c.systemMemoryFreeBytes.desc,
 					c.systemMemoryFreeBytes.valueType,
 					freeBytes,
 					host,
 				)
+			} else {
+				c.logger.Debug("Failed to parse memory", "error", err.Error())
 			}
 		}
 	}
