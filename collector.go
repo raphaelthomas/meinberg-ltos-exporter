@@ -35,12 +35,12 @@ type Collector struct {
 	logger *slog.Logger
 
 	// Metric descriptors
-	up                      typedDesc
-	buildInfoMetric         typedDesc
-	systemUptimeSeconds     typedDesc
-	systemCPULoadAvg        typedDesc
-	systemMemoryBytes       typedDesc
-	systemMemoryFreeBytes   typedDesc
+	up                    typedDesc
+	buildInfoMetric       typedDesc
+	systemUptimeSeconds   typedDesc
+	systemCPULoadAvg      typedDesc
+	systemMemoryBytes     typedDesc
+	systemMemoryFreeBytes typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -50,7 +50,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		logger: logger,
 		up: typedDesc{
 			desc: prometheus.NewDesc(
-				"meinberg_up",
+				"mbg_ltos_up",
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
 				nil,
 				nil,
@@ -73,7 +73,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 				nil,
 				nil,
 			),
-			valueType: prometheus.GaugeValue,
+			valueType: prometheus.CounterValue,
 		},
 		systemCPULoadAvg: typedDesc{
 			desc: prometheus.NewDesc(
