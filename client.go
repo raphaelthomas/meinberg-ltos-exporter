@@ -31,7 +31,7 @@ type Client struct {
 	httpClient    *http.Client
 }
 
-// Target returns the target base URL of the Client
+// Target returns the target base URL of the Meinberg LTOS API client
 func (c *Client) Target() string {
 	return c.baseURL
 }
@@ -49,9 +49,8 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 	}
 }
 
-
-// FetchStatus fetches the system status from the LTOS API
-func (c *Client) FetchStatus() (map[string]interface{}, error) {
+// FetchStatus fetches the target status from the Meinberg LTOS API
+func (c *Client) FetchStatus() (map[string]any, error) {
 	req, err := http.NewRequest("GET", c.baseURL+"/api/status", nil)
 	if err != nil {
 		return nil, err
@@ -77,7 +76,7 @@ func (c *Client) FetchStatus() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, err
 	}
