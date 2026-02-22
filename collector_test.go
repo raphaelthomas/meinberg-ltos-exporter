@@ -40,24 +40,24 @@ func TestCollectorWithMockServer(t *testing.T) {
 		// Create a mock response based on api-status-response.txt
 		response := map[string]interface{}{
 			"system-information": map[string]interface{}{
-				"API Version":    "LANTIME REST API V20.05.013",
-				"version":        "fw_7.10.008",
-				"serial-number":  "OBFUSCATED_SERIAL_NUMBER",
-				"hostname":       "test-device",
-				"time-stamp":     "2026-02-11T22:05:07",
-				"model":          "M600",
+				"API Version":   "LANTIME REST API V20.05.013",
+				"version":       "fw_7.10.008",
+				"serial-number": "OBFUSCATED_SERIAL_NUMBER",
+				"hostname":      "test-device",
+				"time-stamp":    "2026-02-11T22:05:07",
+				"model":         "M600",
 			},
 			"data": map[string]interface{}{
 				"object-id": "status",
 				"system": map[string]interface{}{
-					"uptime":   130988.25,
-					"cpuload":  "0.48 0.66 0.57 2/99 25157",
-					"memory":   "228428 kB total memory, 161732 kB free (70 %)",
+					"uptime":  130988.25,
+					"cpuload": "0.48 0.66 0.57 2/99 25157",
+					"memory":  "228428 kB total memory, 161732 kB free (70 %)",
 					"sync-status": map[string]interface{}{
 						"clock-status": map[string]interface{}{
-							"clock":       "synchronized",
-							"oscillator":  "warmed-up",
-							"antenna":     "connected",
+							"clock":      "synchronized",
+							"oscillator": "warmed-up",
+							"antenna":    "connected",
 						},
 					},
 				},
@@ -112,10 +112,10 @@ func TestCollectorBuildInfoMetric(t *testing.T) {
 
 		response := map[string]interface{}{
 			"system-information": map[string]interface{}{
-				"API Version":    "LANTIME REST API V20.05.013",
-				"version":        "fw_7.10.008",
-				"serial-number":  "SERIAL123",
-				"hostname":       "test-hostname",
+				"API Version":   "LANTIME REST API V20.05.013",
+				"version":       "fw_7.10.008",
+				"serial-number": "SERIAL123",
+				"hostname":      "test-hostname",
 			},
 			"data": map[string]interface{}{
 				"system": map[string]interface{}{
@@ -187,10 +187,10 @@ func TestClientFetchStatus(t *testing.T) {
 
 		response := map[string]interface{}{
 			"system-information": map[string]interface{}{
-				"API Version":    "LANTIME REST API V20.05.013",
-				"version":        "fw_7.10.008",
-				"serial-number":  "SERIAL123",
-				"hostname":       "test-device",
+				"API Version":   "LANTIME REST API V20.05.013",
+				"version":       "fw_7.10.008",
+				"serial-number": "SERIAL123",
+				"hostname":      "test-device",
 			},
 		}
 
@@ -219,32 +219,3 @@ func TestClientFetchStatus(t *testing.T) {
 	require.True(t, ok, "hostname should be a string")
 	assert.Equal(t, "test-device", hostname)
 }
-
-// TestClientCheckHealth tests the CheckHealth method
-func TestClientCheckHealth(t *testing.T) {
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/api/status" {
-			http.NotFound(w, r)
-			return
-		}
-
-		response := map[string]interface{}{
-			"system-information": map[string]interface{}{
-				"API Version": "LANTIME REST API V20.05.013",
-			},
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		err := json.NewEncoder(w).Encode(response)
-		require.NoError(t, err)
-	}))
-	defer mockServer.Close()
-
-	client := NewClient(mockServer.URL, 5*time.Second, "", "")
-
-	// Check health
-	isHealthy, err := client.CheckHealth()
-	require.NoError(t, err)
-	assert.True(t, isHealthy)
-}
-

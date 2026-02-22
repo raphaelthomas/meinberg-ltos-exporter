@@ -49,33 +49,6 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 	}
 }
 
-// CheckHealth checks if the Meinberg device is reachable
-func (c *Client) CheckHealth() (bool, error) {
-	req, err := http.NewRequest("GET", c.baseURL+"/api/status", nil)
-	if err != nil {
-		return false, err
-	}
-
-	// Apply authentication
-	if c.authBasicUser != "" && c.authBasicPass != "" {
-		req.SetBasicAuth(c.authBasicUser, c.authBasicPass)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	// Discard response body
-	_, _ = io.ReadAll(resp.Body)
-
-	return true, nil
-}
 
 // FetchStatus fetches the system status from the LTOS API
 func (c *Client) FetchStatus() (map[string]interface{}, error) {
