@@ -31,6 +31,11 @@ type Client struct {
 	httpClient    *http.Client
 }
 
+// Target returns the target base URL of the Client
+func (c *Client) Target() string {
+	return c.baseURL
+}
+
 // NewClient creates a new Meinberg LTOS API client
 func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string) *Client {
 	return &Client{

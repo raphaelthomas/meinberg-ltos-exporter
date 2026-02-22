@@ -52,7 +52,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_up",
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
-				[]string{"host"},
+				[]string{"host", "target"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -155,7 +155,7 @@ func (c *Collector) parseMemory(memoryStr string) (float64, float64) {
 
 // Collect implements prometheus.Collector
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	// Check device health
+	host := "unknown"
 	upValue := 0.0
 	statusData, err := c.client.FetchStatus()
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		apiVersion := systemInfo["API Version"].(string)
 		firmwareVersion := systemInfo["version"].(string)
 		serialNumber := systemInfo["serial-number"].(string)
-		host := systemInfo["hostname"].(string)
+		host = systemInfo["hostname"].(string)
 
 		// Send the build info metric
 		ch <- prometheus.MustNewConstMetric(
@@ -247,7 +247,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		c.up.desc,
 		c.up.valueType,
 		upValue,
-		"unknown",
+		host, c.client.Target(),
 	)
 }
 
