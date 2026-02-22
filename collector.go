@@ -52,7 +52,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_up",
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
-				nil,
+				[]string{"host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -60,8 +60,8 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		buildInfoMetric: typedDesc{
 			desc: prometheus.NewDesc(
 				"mbg_ltos_build_info",
-				"Build information as labels (e.g., API version, firmware version, serial number, hostname)",
-				[]string{"api_version", "firmware_version", "serial_number", "hostname"},
+				"Meinberg device build information as labels (e.g., API version, firmware version, serial number, host)",
+				[]string{"api_version", "firmware_version", "serial_number", "host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -70,7 +70,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_uptime_seconds",
 				"System uptime in seconds",
-				nil,
+				[]string{"host"},
 				nil,
 			),
 			valueType: prometheus.CounterValue,
@@ -79,7 +79,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_cpu_load_avg",
 				"CPU load averaged over 1, 5, and 15 minutes",
-				[]string{"period"},
+				[]string{"host", "period"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -88,7 +88,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_memory_bytes",
 				"Total memory in bytes",
-				nil,
+				[]string{"host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -97,7 +97,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_memory_free_bytes",
 				"Free memory in bytes",
-				nil,
+				[]string{"host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -164,23 +164,23 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		upValue = 1.0
 
 		// Parse system-information for build info metric
-		systemInfo := statusData["system-information"].(map[string]interface{})
+		systemInfo := statusData["system-information"].(map[string]any)
 		apiVersion := systemInfo["API Version"].(string)
 		firmwareVersion := systemInfo["version"].(string)
 		serialNumber := systemInfo["serial-number"].(string)
-		hostname := systemInfo["hostname"].(string)
+		host := systemInfo["hostname"].(string)
 
 		// Send the build info metric
 		ch <- prometheus.MustNewConstMetric(
 			c.buildInfoMetric.desc,
 			c.buildInfoMetric.valueType,
 			1.0, // Always set a constant value for `info` metrics
-			apiVersion, firmwareVersion, serialNumber, hostname,
+			apiVersion, firmwareVersion, serialNumber, host,
 		)
 
 		// Parse system data for system information metrics
-		data := statusData["data"].(map[string]interface{})
-		system := data["system"].(map[string]interface{})
+		data := statusData["data"].(map[string]any)
+		system := data["system"].(map[string]any)
 
 		// Extract uptime (already in seconds)
 		if uptime, ok := system["uptime"].(float64); ok {
@@ -188,6 +188,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				c.systemUptimeSeconds.desc,
 				c.systemUptimeSeconds.valueType,
 				uptime,
+				host,
 			)
 		}
 
@@ -200,21 +201,21 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					c.systemCPULoadAvg.desc,
 					c.systemCPULoadAvg.valueType,
 					load1,
-					"1",
+					host, "1",
 				)
 				// Send 5-minute average
 				ch <- prometheus.MustNewConstMetric(
 					c.systemCPULoadAvg.desc,
 					c.systemCPULoadAvg.valueType,
 					load5,
-					"5",
+					host, "5",
 				)
 				// Send 15-minute average
 				ch <- prometheus.MustNewConstMetric(
 					c.systemCPULoadAvg.desc,
 					c.systemCPULoadAvg.valueType,
 					load15,
-					"15",
+					host, "15",
 				)
 			}
 		}
@@ -227,6 +228,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					c.systemMemoryBytes.desc,
 					c.systemMemoryBytes.valueType,
 					totalBytes,
+					host,
 				)
 			}
 			if freeBytes > 0 {
@@ -234,6 +236,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					c.systemMemoryFreeBytes.desc,
 					c.systemMemoryFreeBytes.valueType,
 					freeBytes,
+					host,
 				)
 			}
 		}
@@ -244,6 +247,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		c.up.desc,
 		c.up.valueType,
 		upValue,
+		"unknown",
 	)
 }
 
