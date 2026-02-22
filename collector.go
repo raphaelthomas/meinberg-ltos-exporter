@@ -135,7 +135,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 		// Parse system-information for build and system info metric
 		systemInfo := statusData["system-information"].(map[string]any)
-		apiVersion := systemInfo["API Version"].(string)
+		data := statusData["data"].(map[string]any)
+		restAPI := data["rest-api"].(map[string]any)
+		apiVersion := restAPI["api-version"].(string)
 		firmwareVersion := systemInfo["version"].(string)
 		model := systemInfo["model"].(string)
 		serial := systemInfo["serial-number"].(string)
@@ -158,7 +160,6 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		)
 
 		// Parse system data for system information metrics
-		data := statusData["data"].(map[string]any)
 		system := data["system"].(map[string]any)
 
 		// Extract uptime (already in seconds)
