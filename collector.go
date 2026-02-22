@@ -37,6 +37,7 @@ type Collector struct {
 	// Metric descriptors
 	up                    typedDesc
 	buildInfoMetric       typedDesc
+	systemInfoMetric      typedDesc
 	systemUptimeSeconds   typedDesc
 	systemCPULoadAvg      typedDesc
 	systemMemoryBytes     typedDesc
@@ -60,8 +61,17 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		buildInfoMetric: typedDesc{
 			desc: prometheus.NewDesc(
 				"mbg_ltos_build_info",
-				"Meinberg device build information as labels (e.g., API version, firmware version, serial number, host)",
-				[]string{"api_version", "firmware_version", "serial_number", "host"},
+				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
+				[]string{"api_version", "firmware_version", "host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		systemInfoMetric: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_system_info",
+				"Meinberg system information as labels (e.g., model, serial number, host)",
+				[]string{"model", "serial_number", "host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -109,6 +119,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up.desc
 	ch <- c.buildInfoMetric.desc
+	ch <- c.systemInfoMetric.desc
 	ch <- c.systemUptimeSeconds.desc
 	ch <- c.systemCPULoadAvg.desc
 	ch <- c.systemMemoryBytes.desc
@@ -163,19 +174,28 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		upValue = 1.0
 
-		// Parse system-information for build info metric
+		// Parse system-information for build and system info metric
 		systemInfo := statusData["system-information"].(map[string]any)
 		apiVersion := systemInfo["API Version"].(string)
 		firmwareVersion := systemInfo["version"].(string)
-		serialNumber := systemInfo["serial-number"].(string)
+		model := systemInfo["model"].(string)
+		serial := systemInfo["serial-number"].(string)
 		host = systemInfo["hostname"].(string)
 
 		// Send the build info metric
 		ch <- prometheus.MustNewConstMetric(
 			c.buildInfoMetric.desc,
 			c.buildInfoMetric.valueType,
-			1.0, // Always set a constant value for `info` metrics
-			apiVersion, firmwareVersion, serialNumber, host,
+			1.0,
+			apiVersion, firmwareVersion, host,
+		)
+
+		// Send the system info metric
+		ch <- prometheus.MustNewConstMetric(
+			c.systemInfoMetric.desc,
+			c.systemInfoMetric.valueType,
+			1.0,
+			model, serial, host,
 		)
 
 		// Parse system data for system information metrics
