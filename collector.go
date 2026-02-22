@@ -16,6 +16,7 @@ package main
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -39,6 +40,7 @@ type Collector struct {
 	systemCPULoadAvg      typedDesc
 	systemMemoryBytes     typedDesc
 	systemMemoryFreeBytes typedDesc
+	eventMetric           typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -109,6 +111,15 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		eventMetric: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_event",
+				"Information about events triggered on the Meinberg device",
+				[]string{"type", "event"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
 	}
 }
 
@@ -121,6 +132,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.systemCPULoadAvg.desc
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
+	ch <- c.eventMetric.desc
 }
 
 // Collect implements prometheus.Collector
@@ -133,16 +145,66 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		upValue = 1.0
 
-		// Parse system-information for build and system info metric
-		systemInfo := statusData["system-information"].(map[string]any)
-		data := statusData["data"].(map[string]any)
-		restAPI := data["rest-api"].(map[string]any)
-		apiVersion := restAPI["api-version"].(string)
-		firmwareVersion := systemInfo["version"].(string)
-		model := systemInfo["model"].(string)
-		serial := systemInfo["serial-number"].(string)
-		host = systemInfo["hostname"].(string)
+		// Check and parse system-information for build and system info metric
+		systemInfoRaw, ok := statusData["system-information"]
+		if !ok {
+			c.logger.Debug("Key 'system-information' missing in status data")
+			return
+		}
+		systemInfo, ok := systemInfoRaw.(map[string]any)
+		if !ok {
+			c.logger.Debug("Key 'system-information' is not of expected type map[string]interface{}")
+			return
+		}
 
+		dataRaw, ok := statusData["data"]
+		if !ok {
+			c.logger.Debug("Key 'data' missing in status data")
+			return
+		}
+		data, ok := dataRaw.(map[string]any)
+		if !ok {
+			c.logger.Debug("Key 'data' is not of expected type map[string]interface{}")
+			return
+		}
+
+		restAPIRaw, ok := data["rest-api"]
+		if !ok {
+			c.logger.Debug("Key 'rest-api' missing in data")
+			return
+		}
+		restAPI, ok := restAPIRaw.(map[string]any)
+		if !ok {
+			c.logger.Debug("Key 'rest-api' is not of expected type map[string]interface{}")
+			return
+		}
+
+		apiVersion, ok := restAPI["api-version"].(string)
+		if !ok {
+			c.logger.Debug("Key 'api-version' missing or not of type string in rest-api")
+			return
+		}
+
+		firmwareVersion, ok := systemInfo["version"].(string)
+		if !ok {
+			c.logger.Debug("Key 'version' missing or not of type string in system-information")
+			return
+		}
+		model, ok := systemInfo["model"].(string)
+		if !ok {
+			c.logger.Debug("Key 'model' missing or not of type string in system-information")
+			return
+		}
+		serial, ok := systemInfo["serial-number"].(string)
+		if !ok {
+			c.logger.Debug("Key 'serial-number' missing or not of type string in system-information")
+			return
+		}
+		host, ok = systemInfo["hostname"].(string)
+		if !ok {
+			c.logger.Debug("Key 'hostname' missing or not of type string in system-information")
+			return
+		}
 		// Send the build info metric
 		ch <- prometheus.MustNewConstMetric(
 			c.buildInfoMetric.desc,
@@ -220,6 +282,32 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				)
 			} else {
 				c.logger.Debug("Failed to parse memory", "error", err.Error())
+			}
+		}
+
+		// Parse notification events and emit metrics
+		if notifications, ok := data["notification"].(map[string]any); ok {
+			if events, ok := notifications["events"].([]any); ok {
+				for _, evt := range events {
+					event := evt.(map[string]any)
+					eventType := event["type"].(string)
+					eventName := event["object-id"].(string)
+					lastTriggered := event["last-triggered"].(string)
+
+					if lastTriggered != "never" {
+						parsedTime, err := time.Parse("2006-01-02T15:04:05", lastTriggered)
+						if err != nil {
+							c.logger.Debug("Failed to parse 'last-triggered' timestamp", "error", err.Error(), "last-triggered", lastTriggered)
+							continue
+						}
+						ch <- prometheus.MustNewConstMetric(
+							c.eventMetric.desc,
+							c.eventMetric.valueType,
+							float64(parsedTime.Unix()),
+							eventType, eventName,
+						)
+					}
+				}
 			}
 		}
 	}
