@@ -41,6 +41,8 @@ type Collector struct {
 	systemMemoryBytes     typedDesc
 	systemMemoryFreeBytes typedDesc
 	eventMetric           typedDesc
+	storageCapacity       typedDesc
+	storageUsed           typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -120,6 +122,24 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.CounterValue,
 		},
+		storageCapacity: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_storage_capacity_bytes",
+				"Total size of the storage volume in bytes",
+				[]string{"host", "mount"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		storageUsed: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_storage_used_bytes",
+				"Used bytes of the storage volume",
+				[]string{"host", "mount"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 	}
 }
 
@@ -133,6 +153,8 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
 	ch <- c.eventMetric.desc
+	ch <- c.storageCapacity.desc
+	ch <- c.storageUsed.desc
 }
 
 // Collect implements prometheus.Collector
@@ -305,6 +327,37 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 							c.eventMetric.valueType,
 							float64(parsedTime.Unix()),
 							eventType, eventName,
+						)
+					}
+				}
+			}
+		}
+
+		// Parse and emit storage metrics
+		if storageData, ok := system["storage"].([]any); ok {
+			for _, rawStorageEntry := range storageData {
+				storageEntry, ok := rawStorageEntry.(map[string]any)
+				if !ok {
+					c.logger.Debug("Failed to parse storage entry", "entry", rawStorageEntry)
+					continue
+				}
+
+				if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
+					if volumeSize, ok := storageEntry["size"].(float64); ok {
+						ch <- prometheus.MustNewConstMetric(
+							c.storageCapacity.desc,
+							c.storageCapacity.valueType,
+							volumeSize,
+							host, mountpoint,
+						)
+					}
+
+					if usedBytes, ok := storageEntry["used"].(float64); ok {
+						ch <- prometheus.MustNewConstMetric(
+							c.storageUsed.desc,
+							c.storageUsed.valueType,
+							usedBytes,
+							host, mountpoint,
 						)
 					}
 				}
