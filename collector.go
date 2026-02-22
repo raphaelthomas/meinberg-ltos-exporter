@@ -117,7 +117,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_event",
 				"Information about events triggered on the Meinberg device",
-				[]string{"type", "event"},
+				[]string{"host", "type", "event"},
 				nil,
 			),
 			valueType: prometheus.CounterValue,
@@ -326,7 +326,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 							c.eventMetric.desc,
 							c.eventMetric.valueType,
 							float64(parsedTime.Unix()),
-							eventType, eventName,
+							host, eventType, eventName,
 						)
 					}
 				}
