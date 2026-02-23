@@ -39,6 +39,7 @@ type Collector struct {
 	buildInfo               typedDesc
 	systemInfo              typedDesc
 	systemUptimeSeconds     typedDesc
+	systemCPUInfo           typedDesc
 	systemCPULoadAvg        typedDesc
 	systemMemoryBytes       typedDesc
 	systemMemoryFreeBytes   typedDesc
@@ -99,6 +100,15 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 				nil,
 			),
 			valueType: prometheus.CounterValue,
+		},
+		systemCPUInfo: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"system_cpu_info",
+				"CPU information as labels (model, serial, etc.)",
+				[]string{"host", "model", "serial_number"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
 		},
 		systemCPULoadAvg: typedDesc{
 			desc: prometheus.NewDesc(
@@ -507,7 +517,20 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 					slotType := slot["slot-type"].(string)
 					slotID := slot["slot-id"].(string)
 
-					if slotType == "clk" {
+					if slotType == "cpu" {
+						if cpuModuleData, ok := slot["module"].(map[string]any); ok {
+							if cpuInfoData := cpuModuleData["info"].(map[string]any); ok {
+								cpuModel := cpuInfoData["model"].(string)
+								cpuSerial := cpuInfoData["serial-number"].(string)
+								ch <- prometheus.MustNewConstMetric(
+									c.systemCPUInfo.desc,
+									c.systemCPUInfo.valueType,
+									1.0,
+									host, cpuModel, cpuSerial,
+								)
+							}
+						}
+					} else if slotType == "clk" {
 						if moduleData, ok := slot["module"].(map[string]any); ok {
 							if moduleInfoData, ok := moduleData["info"].(map[string]any); ok {
 								model := moduleInfoData["model"].(string)
