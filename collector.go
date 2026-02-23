@@ -33,22 +33,28 @@ type Collector struct {
 	logger *slog.Logger
 
 	// Metric descriptors
-	up                    typedDesc
-	buildInfo             typedDesc
-	systemInfo            typedDesc
-	systemUptimeSeconds   typedDesc
-	systemCPULoadAvg      typedDesc
-	systemMemoryBytes     typedDesc
-	systemMemoryFreeBytes typedDesc
-	event                 typedDesc
-	storageCapacity       typedDesc
-	storageUsed           typedDesc
-	clockInfo             typedDesc
-	clockRcvGNSSSatInView typedDesc
-	clockRcvGNSSSatGood   typedDesc
-	clockRcvGNSSLatitude  typedDesc
-	clockRcvGNSSLongitude typedDesc
-	clockRcvGNSSAltitude  typedDesc
+	up                      typedDesc
+	buildInfo               typedDesc
+	systemInfo              typedDesc
+	systemUptimeSeconds     typedDesc
+	systemCPULoadAvg        typedDesc
+	systemMemoryBytes       typedDesc
+	systemMemoryFreeBytes   typedDesc
+	event                   typedDesc
+	storageCapacity         typedDesc
+	storageUsed             typedDesc
+	clockInfo               typedDesc
+	clockRcvGNSSSatInView   typedDesc
+	clockRcvGNSSSatGood     typedDesc
+	clockRcvGNSSLatitude    typedDesc
+	clockRcvGNSSLongitude   typedDesc
+	clockRcvGNSSAltitude    typedDesc
+	clockRcvAntConnected    typedDesc
+	clockRcvAntShortCircuit typedDesc
+	clockRcvSynced          typedDesc
+	clockRcvTracking        typedDesc
+	clockRcvColdBoot        typedDesc
+	clockRcvWarmBoot        typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -200,6 +206,60 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		clockRcvAntConnected: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_gnss_antenna_connected",
+				"Meinberg clock GNSS receiver antenna connected (1 = connected, 0 = not connected)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clockRcvAntShortCircuit: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_gnss_antenna_short_circuit",
+				"Meinberg clock GNSS receiver antenna short circuit detected (1 = short circuit, 0 = no short circuit)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clockRcvSynced: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_rcv_synced",
+				"Meinberg clock receiver synchronization status (1 = synced, 0 = not synced)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clockRcvTracking: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_rcv_tracking",
+				"Meinberg clock receiver tracking status (1 = tracking, 0 = not tracking)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clockRcvColdBoot: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_rcv_cold_boot",
+				"Meinberg clock receiver cold boot status (1 = cold boot, 0 = not cold boot)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clockRcvWarmBoot: typedDesc{
+			desc: prometheus.NewDesc(
+				"mbg_ltos_clock_rcv_warm_boot",
+				"Meinberg clock receiver warm boot status (1 = warm boot, 0 = not warm boot)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 	}
 }
 
@@ -221,6 +281,12 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.clockRcvGNSSLatitude.desc
 	ch <- c.clockRcvGNSSLongitude.desc
 	ch <- c.clockRcvGNSSAltitude.desc
+	ch <- c.clockRcvAntConnected.desc
+	ch <- c.clockRcvAntShortCircuit.desc
+	ch <- c.clockRcvSynced.desc
+	ch <- c.clockRcvTracking.desc
+	ch <- c.clockRcvColdBoot.desc
+	ch <- c.clockRcvWarmBoot.desc
 }
 
 // Collect implements prometheus.Collector
@@ -490,6 +556,77 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 									alt,
 									host, slotID,
 								)
+							}
+
+							if grcData, ok := moduleData["grc"].(map[string]any); ok {
+								if grcAntData, ok := grcData["antenna"].(map[string]any); ok {
+									antConnected := 0.0
+									if grcAntData["connected"].(bool) {
+										antConnected = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvAntConnected.desc,
+										c.clockRcvAntConnected.valueType,
+										antConnected,
+										host, slotID,
+									)
+
+									antShortCircuit := 0.0
+									if grcAntData["short-circuit"].(bool) {
+										antShortCircuit = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvAntShortCircuit.desc,
+										c.clockRcvAntShortCircuit.valueType,
+										antShortCircuit,
+										host, slotID,
+									)
+								}
+								if grcRcvData, ok := grcData["receiver"].(map[string]any); ok {
+									synced := 0.0
+									if grcRcvData["synchronized"].(bool) {
+										synced = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvSynced.desc,
+										c.clockRcvSynced.valueType,
+										synced,
+										host, slotID,
+									)
+
+									tracking := 0.0
+									if grcRcvData["tracking"].(bool) {
+										tracking = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvTracking.desc,
+										c.clockRcvTracking.valueType,
+										tracking,
+										host, slotID,
+									)
+
+									warmBoot := 0.0
+									if grcRcvData["warm-boot"].(bool) {
+										warmBoot = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvWarmBoot.desc,
+										c.clockRcvWarmBoot.valueType,
+										warmBoot,
+										host, slotID,
+									)
+
+									coldBoot := 0.0
+									if grcRcvData["cold-boot"].(bool) {
+										coldBoot = 1.0
+									}
+									ch <- prometheus.MustNewConstMetric(
+										c.clockRcvColdBoot.desc,
+										c.clockRcvColdBoot.valueType,
+										coldBoot,
+										host, slotID,
+									)
+								}
 							}
 						}
 					}
