@@ -58,6 +58,14 @@ type Collector struct {
 	rcvTracking           typedDesc
 	rcvColdBoot           typedDesc
 	rcvWarmBoot           typedDesc
+	ntpStratum            typedDesc
+	ntpPrecision          typedDesc
+	ntpRootDelay          typedDesc
+	ntpRootDispersion     typedDesc
+	ntpClockJitter        typedDesc
+	ntpClockWander        typedDesc
+	ntpLeapAnnounced      typedDesc
+	ntpLeapSecond         typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -272,6 +280,78 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		ntpStratum: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_stratum",
+				"Meinberg NTP stratum level",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpPrecision: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_precision_seconds",
+				"Meinberg NTP precision in seconds",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpRootDelay: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_root_delay_seconds",
+				"Meinberg NTP root delay in seconds",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpRootDispersion: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_root_dispersion_seconds",
+				"Meinberg NTP root dispersion in seconds",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpClockJitter: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_clock_jitter_seconds",
+				"Meinberg NTP clock jitter in seconds",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpClockWander: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_clock_wander_seconds_per_second",
+				"Meinberg NTP clock wander in seconds per second",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpLeapAnnounced: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_leap_announced",
+				"Meinberg NTP leap second announced status (1 = leap second announced, 0 = no leap second announced)",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		ntpLeapSecond: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"ntp_leap_second",
+				"Meinberg NTP leap second (last or next) in seconds since epoch",
+				[]string{"host"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
 	}
 }
 
@@ -299,6 +379,14 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.rcvTracking.desc
 	ch <- c.rcvColdBoot.desc
 	ch <- c.rcvWarmBoot.desc
+	ch <- c.ntpStratum.desc
+	ch <- c.ntpPrecision.desc
+	ch <- c.ntpRootDelay.desc
+	ch <- c.ntpRootDispersion.desc
+	ch <- c.ntpClockJitter.desc
+	ch <- c.ntpClockWander.desc
+	ch <- c.ntpLeapAnnounced.desc
+	ch <- c.ntpLeapSecond.desc
 }
 
 // Collect implements prometheus.Collector
@@ -508,8 +596,70 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 
-		// Parse and emit clock information metrics
-		// TODO generalize this to "slot information metrics (pwr, cpu)"
+		// Parse and emit NTP service metrics
+		if ntpData, ok := data["ntp"].([]any); ok {
+			for _, assocRaw := range ntpData {
+				assoc := assocRaw.(map[string]any)
+
+				if assoc["object-id"].(string) != "sys" {
+					continue
+				}
+
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpStratum.desc,
+					c.ntpStratum.valueType,
+					assoc["stratum"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpPrecision.desc,
+					c.ntpPrecision.valueType,
+					assoc["precision"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpRootDelay.desc,
+					c.ntpRootDelay.valueType,
+					assoc["rootdelay"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpRootDispersion.desc,
+					c.ntpRootDispersion.valueType,
+					assoc["rootdisp"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpClockJitter.desc,
+					c.ntpClockJitter.valueType,
+					assoc["clk-jitter"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpClockWander.desc,
+					c.ntpClockWander.valueType,
+					assoc["clk-wander"].(float64),
+					host,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpLeapAnnounced.desc,
+					c.ntpLeapAnnounced.valueType,
+					assoc["leap"].(float64),
+					host,
+				)
+				// TODO convert weird timestamp into epoch
+				leapSecRaw := assoc["leapsec"].(string)
+				leapSecTime, _ := time.Parse("200601021504", leapSecRaw)
+				ch <- prometheus.MustNewConstMetric(
+					c.ntpLeapSecond.desc,
+					c.ntpLeapSecond.valueType,
+					float64(leapSecTime.Unix()),
+					host,
+				)
+			}
+		}
+
+		// Parse and emit metrics from chassis slots
 		if chassisData, ok := data["chassis0"].(map[string]any); ok {
 			if slots, ok := chassisData["slots"].([]any); ok {
 				for _, slotRaw := range slots {
