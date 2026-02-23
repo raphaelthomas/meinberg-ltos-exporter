@@ -511,11 +511,15 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 								model := moduleInfoData["model"].(string)
 								serial := moduleInfoData["serial-number"].(string)
 								softwareRevision := moduleInfoData["software-revision"].(string)
+								oscillatorType := "unknown"
+								if syncStatus, ok := moduleData["sync-status"].(map[string]any); ok {
+									oscillatorType = syncStatus["osc-type"].(string)
+								}
 								ch <- prometheus.MustNewConstMetric(
 									c.clockInfo.desc,
 									c.clockInfo.valueType,
 									1.0,
-									host, slotID, model, serial, softwareRevision, "osc-unknown",
+									host, slotID, model, serial, softwareRevision, oscillatorType,
 								)
 							}
 
