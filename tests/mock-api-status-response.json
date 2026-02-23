@@ -1,0 +1,1148 @@
+{
+  "system-information": {
+    "API Version": "LANTIME REST API V20.05.013",
+    "version": "fw_7.10.008",
+    "serial-number": "0123456789",
+    "hostname": "mbg1.time.example.com",
+    "time-stamp": "2026-02-11T22:05:07",
+    "model": "M600"
+  },
+  "data": {
+    "object-id": "status",
+    "rest-api": {
+      "api-version": "20.05.013"
+    },
+    "system": {
+      "uptime": 130988.25,
+      "current-time": "2026-02-11T22:05:01.533523843 UTC",
+      "current-time-iso": "2026-02-11T22:05:01.533Z",
+      "cpuload": "0.48 0.66 0.57 2/99 25157",
+      "memory": "228428 kB total memory, 161732 kB free (70 %)",
+      "position": "46.951083, 7.438632",
+      "last-position-update": "2026.02.11 21:53:08",
+      "last-config-change": 130988.25,
+      "api-last-update": "2026-02-11T22:05:06",
+      "sync-status": {
+        "reference": "clk1-gps",
+        "ref-type": "gps",
+        "clock-idx": 0,
+        "osc-type": "ocxo-lq",
+        "est-time-quality": "less-than-100ns",
+        "leapsecond-announced": false,
+        "leapsecond-date": "",
+        "clock-status": {
+          "clock": "synchronized",
+          "oscillator": "warmed-up",
+          "antenna": "connected"
+        },
+        "holdover-status": {
+          "time-offset": 0,
+          "time-elapsed": 0,
+          "tfom-out": 0
+        }
+      },
+      "front-leds": {
+        "led-ref-time": {
+          "current-color": "green",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "green",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-time-service": {
+          "current-color": "green",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "green",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-network": {
+          "current-color": "red",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "red",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-alarm": {
+          "current-color": "none",
+          "current-state": false,
+          "current-mode": "permanent",
+          "last-color": "none",
+          "last-state": false,
+          "last-mode": "permanent"
+        }
+      },
+      "storage": [
+        {
+          "object-id": "rootfs",
+          "size": 109932,
+          "used": 34452,
+          "available": 75480,
+          "used-percent": 32,
+          "mountpoint": "/"
+        },
+        {
+          "object-id": "none",
+          "size": 114212,
+          "used": 4,
+          "available": 114208,
+          "used-percent": 1,
+          "mountpoint": "/dev/shm"
+        },
+        {
+          "object-id": "var",
+          "size": 32768,
+          "used": 4324,
+          "available": 28444,
+          "used-percent": 14,
+          "mountpoint": "/var"
+        },
+        {
+          "object-id": "tmp",
+          "size": 8192,
+          "used": 4,
+          "available": 8188,
+          "used-percent": 1,
+          "mountpoint": "/tmp"
+        },
+        {
+          "object-id": "www",
+          "size": 16384,
+          "used": 64,
+          "available": 16320,
+          "used-percent": 1,
+          "mountpoint": "/www"
+        },
+        {
+          "object-id": "dev_sda7",
+          "size": 475846,
+          "used": 211164,
+          "available": 239782,
+          "used-percent": 47,
+          "mountpoint": "/data"
+        },
+        {
+          "object-id": "dev_sda5",
+          "size": 401408,
+          "used": 323560,
+          "available": 77848,
+          "used-percent": 81,
+          "mountpoint": "/mnt/flash"
+        },
+        {
+          "object-id": "upload",
+          "size": 101376,
+          "used": 0,
+          "available": 101376,
+          "used-percent": 0,
+          "mountpoint": "/mnt/upload"
+        }
+      ],
+      "firmware": {
+        "running": "fw_7.10.008",
+        "selected": "fw_7.10.008",
+        "fwimage": "firmware-7.10.008-x32",
+        "firmware": [
+          {
+            "object-id": "fw_7.10.007",
+            "version": "7.10.7",
+            "type": "Compressed"
+          },
+          {
+            "object-id": "fw_7.10.008",
+            "version": "7.10.8",
+            "type": "Compressed"
+          },
+          {
+            "object-id": "fw_7.08.025",
+            "version": "7.08.25",
+            "type": "Compressed"
+          },
+          {
+            "object-id": "osv",
+            "version": "6.16.7",
+            "type": "Standard"
+          }
+        ],
+        "update": {
+          "update-in-progress": false,
+          "update-progress": 0,
+          "last-update-successful": true,
+          "last-update-started": "2026-02-10T07:20:13",
+          "last-update-ended": "2026-02-10T07:22:17",
+          "last-update-error": "none"
+        },
+        "packages": [
+          {
+            "object-id": "bird",
+            "version": "7.10.6"
+          },
+          {
+            "object-id": "cli",
+            "version": "7.10.582"
+          },
+          {
+            "object-id": "data",
+            "version": "no version information"
+          },
+          {
+            "object-id": "himem",
+            "version": "7.9.2"
+          },
+          {
+            "object-id": "iec61850",
+            "version": "7.10.144"
+          },
+          {
+            "object-id": "ims",
+            "version": "7.9.2"
+          },
+          {
+            "object-id": "lantime",
+            "version": "7.10.363"
+          },
+          {
+            "object-id": "lptp",
+            "version": "7.10.88"
+          },
+          {
+            "object-id": "ltmgmt",
+            "version": "7.10.53"
+          },
+          {
+            "object-id": "manuals",
+            "version": "7.9.5"
+          },
+          {
+            "object-id": "network",
+            "version": "7.10.168"
+          },
+          {
+            "object-id": "ntp",
+            "version": "7.10.152"
+          },
+          {
+            "object-id": "nts",
+            "version": "7.10.64"
+          },
+          {
+            "object-id": "ptp2",
+            "version": "7.9.5"
+          },
+          {
+            "object-id": "snmp",
+            "version": "7.10.216"
+          },
+          {
+            "object-id": "ssh",
+            "version": "7.10.144"
+          },
+          {
+            "object-id": "syncmon",
+            "version": "7.10.161"
+          },
+          {
+            "object-id": "system",
+            "version": "7.10.366"
+          },
+          {
+            "object-id": "web",
+            "version": "7.10.307"
+          }
+        ]
+      }
+    },
+    "notification": {
+      "events": [
+        {
+          "object-id": "normal-operation",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "ntp-not-sync",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-02-10T09:45:48"
+        },
+        {
+          "object-id": "ntp-sync",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T13:49:32"
+        },
+        {
+          "object-id": "ntp-stopped",
+          "type": "critical",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "ntp-offset-limit-exceeded",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "ntp-offset-limit-ok",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "system-reboot",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "2026-02-10T09:44:19"
+        },
+        {
+          "object-id": "refclock-1-not-responding",
+          "type": "critical",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "refclock-1-not-sync",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-02-11T07:48:26"
+        },
+        {
+          "object-id": "refclock-1-sync",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-02-11T07:48:48"
+        },
+        {
+          "object-id": "antenna-faulty",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "antenna-reconnect",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T09:44:21"
+        },
+        {
+          "object-id": "antenna-short-circuit",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "device-configuration-changed",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "2026-02-11T21:53:05"
+        },
+        {
+          "object-id": "leapsecond-announced",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor-alert",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor-ok",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "network-link-down",
+          "type": "error",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T09:43:48"
+        },
+        {
+          "object-id": "network-link-up",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "2026-02-10T09:43:48"
+        },
+        {
+          "object-id": "low-system-resources",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sufficient-system-resources",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T09:50:03"
+        },
+        {
+          "object-id": "https-certificate-expired",
+          "type": "error",
+          "triggered": 1,
+          "last-triggered": "2026-02-11T21:53:08"
+        },
+        {
+          "object-id": "https-certificate-expire-warning",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "self-signed-https-certificate-in-use",
+          "type": "warning",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T09:44:57"
+        },
+        {
+          "object-id": "oscillator-adjusted",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-02-10T09:45:58"
+        },
+        {
+          "object-id": "oscillator-not-adjusted",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "cluster-master-changed",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "cluster-falseticker-detected",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "cluster-falseticker-cleared",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "faillock-user-banned",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "auto-update-avail",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "auto-update-installed",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "auto-update-failed",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        }
+      ]
+    },
+    "network": {
+      "ports": [
+        {
+          "object-id": "lan0",
+          "port-available": true,
+          "duplex": "full",
+          "operstate": true,
+          "speed": "100",
+          "mac-address": "00:13:95:16:7c:9c",
+          "link": true,
+          "slot-id": 7,
+          "slot-name": "cpu",
+          "port-id": 0,
+          "card-name": "c05f1-v33",
+          "statistics": {
+            "rx-packets": 792578,
+            "rx-bytes": 55105245,
+            "rx-dropped": 0,
+            "rx-compressed": 0,
+            "rx-nohandler": 0,
+            "rx-errors": 0,
+            "rx-crc-errors": 0,
+            "rx-fifo-errors": 0,
+            "rx-frame-errors": 0,
+            "rx-length-errors": 0,
+            "rx-missed-errors": 0,
+            "rx-over-errors": 0,
+            "tx-packets": 257815,
+            "tx-bytes": 109582270,
+            "tx-dropped": 0,
+            "tx-compressed": 0,
+            "tx-errors": 0,
+            "tx-aborted-errors": 0,
+            "tx-carrier-errors": 0,
+            "tx-fifo-errors": 0,
+            "tx-heartbeat-errors": 0,
+            "tx-window-errors": 0,
+            "multicast": 0,
+            "collisions": 0,
+            "gro-flush-timeout": 0,
+            "mtu": 0
+          },
+          "bonding-slave": {
+            "ad-actor-oper-port-state": "N/A",
+            "ad-aggregator-id": "N/A",
+            "ad-partner-oper-port-state": "N/A",
+            "link-failure-count": "-",
+            "mii-status": true,
+            "perm-hwaddr": "00:13:95:16:7c:9c",
+            "queue-id": "-",
+            "state": "standalone"
+          }
+        },
+        {
+          "object-id": "lan1",
+          "port-available": false,
+          "duplex": "-",
+          "operstate": false,
+          "speed": "-",
+          "mac-address": "00:00:00:00:00:00",
+          "link": false,
+          "slot-id": -1,
+          "slot-name": "",
+          "port-id": -1,
+          "card-name": "unknown",
+          "statistics": {
+            "rx-packets": 0,
+            "rx-bytes": 0,
+            "rx-dropped": 0,
+            "rx-compressed": 0,
+            "rx-nohandler": 0,
+            "rx-errors": 0,
+            "rx-crc-errors": 0,
+            "rx-fifo-errors": 0,
+            "rx-frame-errors": 0,
+            "rx-length-errors": 0,
+            "rx-missed-errors": 0,
+            "rx-over-errors": 0,
+            "tx-packets": 0,
+            "tx-bytes": 0,
+            "tx-dropped": 0,
+            "tx-compressed": 0,
+            "tx-errors": 0,
+            "tx-aborted-errors": 0,
+            "tx-carrier-errors": 0,
+            "tx-fifo-errors": 0,
+            "tx-heartbeat-errors": 0,
+            "tx-window-errors": 0,
+            "multicast": 0,
+            "collisions": 0,
+            "gro-flush-timeout": 0,
+            "mtu": 0
+          },
+          "bonding-slave": {
+            "ad-actor-oper-port-state": "N/A",
+            "ad-aggregator-id": "N/A",
+            "ad-partner-oper-port-state": "N/A",
+            "link-failure-count": "",
+            "mii-status": false,
+            "perm-hwaddr": "00:00:00:00:00:00",
+            "queue-id": "-",
+            "state": "standalone"
+          }
+        },
+        {
+          "object-id": "lan2",
+          "port-available": false,
+          "duplex": "-",
+          "operstate": false,
+          "speed": "-",
+          "mac-address": "00:00:00:00:00:00",
+          "link": false,
+          "slot-id": -1,
+          "slot-name": "",
+          "port-id": -1,
+          "card-name": "unknown",
+          "statistics": {
+            "rx-packets": 0,
+            "rx-bytes": 0,
+            "rx-dropped": 0,
+            "rx-compressed": 0,
+            "rx-nohandler": 0,
+            "rx-errors": 0,
+            "rx-crc-errors": 0,
+            "rx-fifo-errors": 0,
+            "rx-frame-errors": 0,
+            "rx-length-errors": 0,
+            "rx-missed-errors": 0,
+            "rx-over-errors": 0,
+            "tx-packets": 0,
+            "tx-bytes": 0,
+            "tx-dropped": 0,
+            "tx-compressed": 0,
+            "tx-errors": 0,
+            "tx-aborted-errors": 0,
+            "tx-carrier-errors": 0,
+            "tx-fifo-errors": 0,
+            "tx-heartbeat-errors": 0,
+            "tx-window-errors": 0,
+            "multicast": 0,
+            "collisions": 0,
+            "gro-flush-timeout": 0,
+            "mtu": 0
+          },
+          "bonding-slave": {
+            "ad-actor-oper-port-state": "N/A",
+            "ad-aggregator-id": "N/A",
+            "ad-partner-oper-port-state": "N/A",
+            "link-failure-count": "",
+            "mii-status": false,
+            "perm-hwaddr": "00:00:00:00:00:00",
+            "queue-id": "-",
+            "state": "standalone"
+          }
+        },
+        {
+          "object-id": "lan3",
+          "port-available": false,
+          "duplex": "-",
+          "operstate": false,
+          "speed": "-",
+          "mac-address": "00:00:00:00:00:00",
+          "link": false,
+          "slot-id": -1,
+          "slot-name": "",
+          "port-id": -1,
+          "card-name": "unknown",
+          "statistics": {
+            "rx-packets": 0,
+            "rx-bytes": 0,
+            "rx-dropped": 0,
+            "rx-compressed": 0,
+            "rx-nohandler": 0,
+            "rx-errors": 0,
+            "rx-crc-errors": 0,
+            "rx-fifo-errors": 0,
+            "rx-frame-errors": 0,
+            "rx-length-errors": 0,
+            "rx-missed-errors": 0,
+            "rx-over-errors": 0,
+            "tx-packets": 0,
+            "tx-bytes": 0,
+            "tx-dropped": 0,
+            "tx-compressed": 0,
+            "tx-errors": 0,
+            "tx-aborted-errors": 0,
+            "tx-carrier-errors": 0,
+            "tx-fifo-errors": 0,
+            "tx-heartbeat-errors": 0,
+            "tx-window-errors": 0,
+            "multicast": 0,
+            "collisions": 0,
+            "gro-flush-timeout": 0,
+            "mtu": 0
+          },
+          "bonding-slave": {
+            "ad-actor-oper-port-state": "N/A",
+            "ad-aggregator-id": "N/A",
+            "ad-partner-oper-port-state": "N/A",
+            "link-failure-count": "",
+            "mii-status": false,
+            "perm-hwaddr": "00:00:00:00:00:00",
+            "queue-id": "-",
+            "state": "standalone"
+          }
+        }
+      ],
+      "interfaces": [
+        {
+          "object-id": "vif0",
+          "ifname": "lan0:0",
+          "addresses": [
+            {
+              "object-id": "ipv4-static",
+              "iftype": "static",
+              "addresstype": "ipv4",
+              "subnet": "255.255.255.0",
+              "address": "192.0.2.123"
+            }
+          ],
+          "cluster": {
+            "ipv4": {
+              "enabled": false,
+              "timestamp": "",
+              "cluster-ip": "",
+              "communication-ip": "",
+              "port-state": "",
+              "master-serial": "",
+              "master-ip": "",
+              "master-priority": 0,
+              "clock-class": "",
+              "clock-status": "",
+              "ntp-status": "unknown",
+              "reconfig-state": "currently-none"
+            },
+            "ipv6": {
+              "enabled": false,
+              "timestamp": "",
+              "cluster-ip": "",
+              "communication-ip": "",
+              "port-state": "",
+              "master-serial": "",
+              "master-ip": "",
+              "master-priority": 0,
+              "clock-class": "",
+              "clock-status": "",
+              "ntp-status": "unknown",
+              "reconfig-state": "currently-none"
+            }
+          }
+        },
+        {
+          "object-id": "vif1",
+          "ifname": "lan1:1",
+          "cluster": {
+            "ipv4": {
+              "enabled": false,
+              "timestamp": "",
+              "cluster-ip": "",
+              "communication-ip": "",
+              "port-state": "",
+              "master-serial": "",
+              "master-ip": "",
+              "master-priority": 0,
+              "clock-class": "",
+              "clock-status": "",
+              "ntp-status": "unknown",
+              "reconfig-state": "currently-none"
+            },
+            "ipv6": {
+              "enabled": false,
+              "timestamp": "",
+              "cluster-ip": "",
+              "communication-ip": "",
+              "port-state": "",
+              "master-serial": "",
+              "master-ip": "",
+              "master-priority": 0,
+              "clock-class": "",
+              "clock-status": "",
+              "ntp-status": "unknown",
+              "reconfig-state": "currently-none"
+            }
+          }
+        }
+      ]
+    },
+    "services": {
+      "network": {
+        "daytime": {
+          "running": false
+        },
+        "ftp": {
+          "running": false
+        },
+        "telnet": {
+          "running": false
+        },
+        "time": {
+          "running": false
+        },
+        "webshell": {
+          "running": true
+        },
+        "ssh": {
+          "running": true
+        },
+        "ntp": {
+          "running": true
+        },
+        "http": {
+          "running": true
+        },
+        "https": {
+          "running": true
+        },
+        "snmp": {
+          "running": true
+        },
+        "mms": {
+          "running": false
+        },
+        "ptp": {
+          "running": false
+        }
+      },
+      "global": {
+        "filemon": {
+          "running": true
+        },
+        "ldap": {
+          "running": false
+        },
+        "noise": {
+          "running": false
+        },
+        "serial_console": {
+          "running": true
+        },
+        "softwatch": {
+          "running": true
+        },
+        "syslog": {
+          "running": true
+        },
+        "clidaemon": {
+          "running": true
+        },
+        "syncteam": {
+          "running": false
+        },
+        "linkmonitor": {
+          "running": true
+        },
+        "lldp": {
+          "running": false
+        },
+        "netconfig": {
+          "running": true
+        },
+        "portauth": {
+          "running": false
+        },
+        "sendmail": {
+          "running": false
+        },
+        "autoupdate": {
+          "running": true
+        },
+        "avahi": {
+          "running": false
+        },
+        "dbus": {
+          "running": true
+        },
+        "syncmon": {
+          "running": true
+        },
+        "bird": {
+          "running": true
+        }
+      }
+    },
+    "chassis0": {
+      "model": "M600",
+      "serial-number": "030111006950",
+      "backplane-revision": "V53",
+      "firmware-image": "fw_7.10.008",
+      "slot-layout": "1,9",
+      "slots": [
+        {
+          "object-id": "pwr1",
+          "slot-id": "pwr1",
+          "slot-type": "pwr",
+          "slot-position": "0,0,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "power-available": true,
+            "power-capacity": 50.0,
+            "info": {
+              "model": "psu",
+              "serial-number": "",
+              "software-revision": "",
+              "firmware-image": ""
+            }
+          }
+        },
+        {
+          "object-id": "pwr2",
+          "slot-id": "pwr2",
+          "slot-type": "pwr",
+          "slot-position": "0,1,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "power-available": false,
+            "power-capacity": 0.0
+          }
+        },
+        {
+          "object-id": "clk1",
+          "slot-id": "clk1",
+          "slot-type": "clk",
+          "slot-position": "0,2,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "dac-cal": null,
+            "dac-val": null,
+            "info": {
+              "model": "grc180",
+              "serial-number": "029811038330",
+              "software-revision": "v2.16",
+              "sensors": {
+                "temperature-1": 0.0,
+                "temperature-2": 0.0
+              }
+            },
+            "supported-string-types": [
+              {
+                "object-id": "meinberg-standard",
+                "value": 0,
+                "description": "meinberg-standard"
+              },
+              {
+                "object-id": "sat",
+                "value": 1,
+                "description": "sat"
+              },
+              {
+                "object-id": "nmea-rmc",
+                "value": 2,
+                "description": "nmea-rmc"
+              },
+              {
+                "object-id": "uni-erlangen",
+                "value": 3,
+                "description": "uni-erlangen"
+              },
+              {
+                "object-id": "computime",
+                "value": 4,
+                "description": "computime"
+              },
+              {
+                "object-id": "sysplex-1-",
+                "value": 5,
+                "description": "sysplex-1-"
+              },
+              {
+                "object-id": "meinberg-capture",
+                "value": 6,
+                "description": "meinberg-capture"
+              },
+              {
+                "object-id": "spa",
+                "value": 7,
+                "description": "spa"
+              },
+              {
+                "object-id": "racal",
+                "value": 8,
+                "description": "racal"
+              },
+              {
+                "object-id": "meinberg-gps",
+                "value": 9,
+                "description": "meinberg-gps"
+              },
+              {
+                "object-id": "nmea-gga",
+                "value": 10,
+                "description": "nmea-gga"
+              },
+              {
+                "object-id": "nmea-rmc-gga",
+                "value": 11,
+                "description": "nmea-rmc-gga"
+              },
+              {
+                "object-id": "nmea-zda",
+                "value": 12,
+                "description": "nmea-zda"
+              },
+              {
+                "object-id": "ion",
+                "value": 13,
+                "description": "ion"
+              }
+            ],
+            "sync-status": {
+              "clock-idx": "selected",
+              "osc-type": "ocxo-lq",
+              "est-time-quality": "less-than-100ns",
+              "clock-status": {
+                "clock": "synchronized",
+                "oscillator": "warmed-up"
+              }
+            },
+            "grc": {
+              "ref-type": "10mhz-freqin",
+              "receiver-status": "synchronized",
+              "antenna": {
+                "connected": true,
+                "short-circuit": false
+              },
+              "receiver": {
+                "synchronized": true,
+                "tracking": false,
+                "warm-boot": false,
+                "cold-boot": false
+              }
+            },
+            "satellites": {
+              "gps-mode": "normal-operation",
+              "good-satellites": 9,
+              "satellites-in-view": 14,
+              "position-x": 4325331.924,
+              "position-y": 564728.368,
+              "position-z": 4638460.298,
+              "latitude": 46.951083,
+              "longitude": 7.438632,
+              "altitude": 555.5,
+              "pdop": 0.0,
+              "tdop": 1.06,
+              "selected-satellites": [
+                "gps28",
+                "gps1",
+                "gps17",
+                "gps2"
+              ]
+            }
+          }
+        },
+        {
+          "object-id": "clk2",
+          "slot-id": "clk2",
+          "slot-type": "clk",
+          "slot-position": "0,3,1",
+          "slot-orientation": "vertical"
+        },
+        {
+          "object-id": "cpu",
+          "slot-id": "cpu",
+          "slot-type": "cpu",
+          "slot-position": "0,4,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "info": {
+              "model": "c05f1-v33",
+              "serial-number": "N/A",
+              "software-revision": "7.10.008",
+              "firmware-image": "fw_7.10.008",
+              "sensors": {
+                "temperature-1": 49.0
+              }
+            }
+          }
+        },
+        {
+          "object-id": "int1",
+          "slot-id": "int1",
+          "slot-type": "int",
+          "slot-position": "0,5,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int2",
+          "slot-id": "int2",
+          "slot-type": "int",
+          "slot-position": "0,6,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int3",
+          "slot-id": "int3",
+          "slot-type": "int",
+          "slot-position": "0,7,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int4",
+          "slot-id": "int4",
+          "slot-type": "int",
+          "slot-position": "0,8,1",
+          "slot-orientation": "internal"
+        }
+      ]
+    },
+    "ntp": [
+      {
+        "object-id": "sys",
+        "association-id": 0,
+        "id": "127.0.0.1",
+        "name": "localhost",
+        "status": "0415",
+        "status-sys-leap-indicator": "none",
+        "status-sys-clock-source": "uhf-radio",
+        "status-sys-event-counter": 1,
+        "status-sys-event-code": "clock-sync",
+        "leap": 0,
+        "stratum": 1,
+        "precision": -18,
+        "rootdelay": 0.0,
+        "rootdisp": 0.000124,
+        "refid": "GPS",
+        "tai": 37,
+        "leapsec": "201701010000",
+        "clk-jitter": 4e-6,
+        "clk-wander": 0.0,
+        "expire": "202612280000"
+      },
+      {
+        "object-id": "ref_1",
+        "association-id": 12980,
+        "id": "127.127.8.0",
+        "name": "127.127.8.0",
+        "status": "97fb",
+        "status-peer-configured": true,
+        "status-peer-auth-enabled": false,
+        "status-peer-auth-ok": false,
+        "status-peer-reach-ok": true,
+        "status-peer-broadcast": false,
+        "status-peer-selection": "pps-peer",
+        "status-peer-event-counter": 15,
+        "status-peer-event-code": "clock-event",
+        "leap": 0,
+        "stratum": 0,
+        "precision": -18,
+        "rootdelay": 0.0,
+        "rootdisp": 0.0,
+        "refid": "GPS",
+        "offset": 0.0,
+        "delay": 0.0,
+        "dispersion": 0.00012,
+        "reach": 255,
+        "poll-status": "11111111 [377]"
+      }
+    ],
+    "syncmon": {
+      "last-updated": "2026-02-11T22:04:59",
+      "nodes": []
+    },
+    "syncteam": {
+      "operational-mode": "disabled",
+      "time-quality": "unknown",
+      "leapsecond-state": "no-leapsecond",
+      "current-tfom": 15,
+      "team-members": 0,
+      "online-members": 0,
+      "offline-members": 0,
+      "reference": {
+        "current-team-master": "unknown",
+        "current-team-reference": "unknown"
+      },
+      "members": []
+    }
+  },
+  "changes": {
+    "pending-changes": 0
+  },
+  "links": {
+    "self": "https://localhost/api/status"
+  }
+}
