@@ -156,6 +156,24 @@ func main() {
 	// Register the /metrics handler
 	http.Handle("/metrics", promhttp.Handler())
 
+	// Create a simple index page
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprintf(w, `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Meinberg LTOS Exporter</title>
+</head>
+<body>
+  <h1>Meinberg LTOS Exporter</h1>
+  <p>Prometheus exporter for Meinberg LTOS devices.</p>
+	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from %s.</p>
+</body>
+</html>
+`, cfg.LTOSAPIURL)
+	})
+
 	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
 	logger.Info("HTTP server listening", "address", listenAddr)
 
