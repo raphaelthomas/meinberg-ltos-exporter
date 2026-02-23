@@ -449,7 +449,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 									c.clockInfo.desc,
 									c.clockInfo.valueType,
 									1.0,
-									host, slotID, model, serial, softwareRevision,
+									host, slotID, model, serial, softwareRevision, "osc-unknown",
 								)
 							}
 
