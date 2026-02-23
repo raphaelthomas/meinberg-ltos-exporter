@@ -44,11 +44,11 @@ type Collector struct {
 	storageCapacity       typedDesc
 	storageUsed           typedDesc
 	clockInfo             typedDesc
-	clockGNSSSatInView    typedDesc
-	clockGNSSSatGood      typedDesc
-	clockGNSSLatitude     typedDesc
-	clockGNSSLongitude    typedDesc
-	clockGNSSAltitude     typedDesc
+	clockRcvGNSSSatInView typedDesc
+	clockRcvGNSSSatGood   typedDesc
+	clockRcvGNSSLatitude  typedDesc
+	clockRcvGNSSLongitude typedDesc
+	clockRcvGNSSAltitude  typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -155,45 +155,45 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clockGNSSSatInView: typedDesc{
+		clockRcvGNSSSatInView: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_satellites_in_view",
+				"mbg_ltos_clock_rcv_gnss_satellites_in_view",
 				"Meinberg clock GNSS receiver satellites in view",
 				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clockGNSSSatGood: typedDesc{
+		clockRcvGNSSSatGood: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_satellites_good",
+				"mbg_ltos_clock_rcv_gnss_satellites_good",
 				"Meinberg clock GNSS receiver good satellites",
 				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clockGNSSLatitude: typedDesc{
+		clockRcvGNSSLatitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_latitude_degrees",
+				"mbg_ltos_clock_rcv_gnss_latitude_degrees",
 				"Meinberg clock GNSS receiver latitude",
 				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clockGNSSLongitude: typedDesc{
+		clockRcvGNSSLongitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_longitude_degrees",
+				"mbg_ltos_clock_rcv_gnss_longitude_degrees",
 				"Meinberg clock GNSS receiver longitude",
 				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clockGNSSAltitude: typedDesc{
+		clockRcvGNSSAltitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_altitude_meters",
+				"mbg_ltos_clock_rcv_gnss_altitude_meters",
 				"Meinberg clock GNSS receiver altitude",
 				[]string{"host", "clock_id"},
 				nil,
@@ -216,11 +216,11 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.storageCapacity.desc
 	ch <- c.storageUsed.desc
 	ch <- c.clockInfo.desc
-	ch <- c.clockGNSSSatInView.desc
-	ch <- c.clockGNSSSatGood.desc
-	ch <- c.clockGNSSLatitude.desc
-	ch <- c.clockGNSSLongitude.desc
-	ch <- c.clockGNSSAltitude.desc
+	ch <- c.clockRcvGNSSSatInView.desc
+	ch <- c.clockRcvGNSSSatGood.desc
+	ch <- c.clockRcvGNSSLatitude.desc
+	ch <- c.clockRcvGNSSLongitude.desc
+	ch <- c.clockRcvGNSSAltitude.desc
 }
 
 // Collect implements prometheus.Collector
@@ -461,32 +461,32 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 								alt := satellitesData["altitude"].(float64)
 
 								ch <- prometheus.MustNewConstMetric(
-									c.clockGNSSSatInView.desc,
-									c.clockGNSSSatInView.valueType,
+									c.clockRcvGNSSSatInView.desc,
+									c.clockRcvGNSSSatInView.valueType,
 									satInView,
 									host, slotID,
 								)
 								ch <- prometheus.MustNewConstMetric(
-									c.clockGNSSSatGood.desc,
-									c.clockGNSSSatGood.valueType,
+									c.clockRcvGNSSSatGood.desc,
+									c.clockRcvGNSSSatGood.valueType,
 									satGood,
 									host, slotID,
 								)
 								ch <- prometheus.MustNewConstMetric(
-									c.clockGNSSLatitude.desc,
-									c.clockGNSSLatitude.valueType,
+									c.clockRcvGNSSLatitude.desc,
+									c.clockRcvGNSSLatitude.valueType,
 									lat,
 									host, slotID,
 								)
 								ch <- prometheus.MustNewConstMetric(
-									c.clockGNSSLongitude.desc,
-									c.clockGNSSLongitude.valueType,
+									c.clockRcvGNSSLongitude.desc,
+									c.clockRcvGNSSLongitude.valueType,
 									lon,
 									host, slotID,
 								)
 								ch <- prometheus.MustNewConstMetric(
-									c.clockGNSSAltitude.desc,
-									c.clockGNSSAltitude.valueType,
+									c.clockRcvGNSSAltitude.desc,
+									c.clockRcvGNSSAltitude.valueType,
 									alt,
 									host, slotID,
 								)
