@@ -34,13 +34,13 @@ type Collector struct {
 
 	// Metric descriptors
 	up                    typedDesc
-	buildInfoMetric       typedDesc
-	systemInfoMetric      typedDesc
+	buildInfo             typedDesc
+	systemInfo            typedDesc
 	systemUptimeSeconds   typedDesc
 	systemCPULoadAvg      typedDesc
 	systemMemoryBytes     typedDesc
 	systemMemoryFreeBytes typedDesc
-	eventMetric           typedDesc
+	event                 typedDesc
 	storageCapacity       typedDesc
 	storageUsed           typedDesc
 }
@@ -59,7 +59,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		buildInfoMetric: typedDesc{
+		buildInfo: typedDesc{
 			desc: prometheus.NewDesc(
 				"mbg_ltos_build_info",
 				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
@@ -68,7 +68,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		systemInfoMetric: typedDesc{
+		systemInfo: typedDesc{
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_info",
 				"Meinberg system information as labels (e.g., model, serial number, host)",
@@ -113,7 +113,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		eventMetric: typedDesc{
+		event: typedDesc{
 			desc: prometheus.NewDesc(
 				"mbg_ltos_event",
 				"Information about events triggered on the Meinberg device",
@@ -146,13 +146,13 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 // Describe implements prometheus.Collector
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up.desc
-	ch <- c.buildInfoMetric.desc
-	ch <- c.systemInfoMetric.desc
+	ch <- c.buildInfo.desc
+	ch <- c.systemInfo.desc
 	ch <- c.systemUptimeSeconds.desc
 	ch <- c.systemCPULoadAvg.desc
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
-	ch <- c.eventMetric.desc
+	ch <- c.event.desc
 	ch <- c.storageCapacity.desc
 	ch <- c.storageUsed.desc
 }
@@ -229,16 +229,16 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		}
 		// Send the build info metric
 		ch <- prometheus.MustNewConstMetric(
-			c.buildInfoMetric.desc,
-			c.buildInfoMetric.valueType,
+			c.buildInfo.desc,
+			c.buildInfo.valueType,
 			1.0,
 			apiVersion, firmwareVersion, host,
 		)
 
 		// Send the system info metric
 		ch <- prometheus.MustNewConstMetric(
-			c.systemInfoMetric.desc,
-			c.systemInfoMetric.valueType,
+			c.systemInfo.desc,
+			c.systemInfo.valueType,
 			1.0,
 			model, serial, host,
 		)
@@ -323,8 +323,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 							continue
 						}
 						ch <- prometheus.MustNewConstMetric(
-							c.eventMetric.desc,
-							c.eventMetric.valueType,
+							c.event.desc,
+							c.event.valueType,
 							float64(parsedTime.Unix()),
 							host, eventType, eventName,
 						)
