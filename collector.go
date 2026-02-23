@@ -21,6 +21,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+const MetricPrefix = "mbg_ltos_"
+
 // typedDesc combines a prometheus.Desc with its value type for cleaner code
 type typedDesc struct {
 	desc      *prometheus.Desc
@@ -64,7 +66,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		logger: logger,
 		up: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_up",
+				MetricPrefix+"up",
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
 				[]string{"host", "target"},
 				nil,
@@ -73,7 +75,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		buildInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_build_info",
+				MetricPrefix+"build_info",
 				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
 				[]string{"host", "api_version", "firmware_version"},
 				nil,
@@ -82,7 +84,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		systemInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_system_info",
+				MetricPrefix+"system_info",
 				"Meinberg system information as labels (e.g., model, serial number, host)",
 				[]string{"host", "model", "serial_number"},
 				nil,
@@ -91,7 +93,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		systemUptimeSeconds: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_system_uptime_seconds",
+				MetricPrefix+"system_uptime_seconds",
 				"System uptime in seconds",
 				[]string{"host"},
 				nil,
@@ -100,7 +102,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		systemCPULoadAvg: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_system_cpu_load_avg",
+				MetricPrefix+"system_cpu_load_avg",
 				"CPU load averaged over 1, 5, and 15 minutes",
 				[]string{"host", "period"},
 				nil,
@@ -109,7 +111,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		systemMemoryBytes: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_system_memory_bytes",
+				MetricPrefix+"system_memory_bytes",
 				"Total memory in bytes",
 				[]string{"host"},
 				nil,
@@ -118,7 +120,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		systemMemoryFreeBytes: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_system_memory_free_bytes",
+				MetricPrefix+"system_memory_free_bytes",
 				"Free memory in bytes",
 				[]string{"host"},
 				nil,
@@ -127,7 +129,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		event: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_event",
+				MetricPrefix+"event",
 				"Information about events triggered on the Meinberg device",
 				[]string{"host", "type", "event"},
 				nil,
@@ -136,7 +138,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		storageCapacity: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_storage_capacity_bytes",
+				MetricPrefix+"storage_capacity_bytes",
 				"Total size of the storage volume in bytes",
 				[]string{"host", "mount"},
 				nil,
@@ -145,7 +147,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		storageUsed: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_storage_used_bytes",
+				MetricPrefix+"storage_used_bytes",
 				"Used bytes of the storage volume",
 				[]string{"host", "mount"},
 				nil,
@@ -154,7 +156,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_info",
+				MetricPrefix+"clock_info",
 				"Meinberg clock module information as labels (e.g., clock ID, model, serial number, softwware revision)",
 				[]string{"host", "clock_id", "model", "serial_number", "software_revision", "oscillator_type"},
 				nil,
@@ -163,7 +165,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvGNSSSatInView: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_gnss_satellites_in_view",
+				MetricPrefix+"clock_rcv_gnss_satellites_in_view",
 				"Meinberg clock GNSS receiver satellites in view",
 				[]string{"host", "clock_id"},
 				nil,
@@ -172,7 +174,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvGNSSSatGood: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_gnss_satellites_good",
+				MetricPrefix+"clock_rcv_gnss_satellites_good",
 				"Meinberg clock GNSS receiver good satellites",
 				[]string{"host", "clock_id"},
 				nil,
@@ -181,7 +183,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvGNSSLatitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_gnss_latitude_degrees",
+				MetricPrefix+"clock_rcv_gnss_latitude_degrees",
 				"Meinberg clock GNSS receiver latitude",
 				[]string{"host", "clock_id"},
 				nil,
@@ -190,7 +192,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvGNSSLongitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_gnss_longitude_degrees",
+				MetricPrefix+"clock_rcv_gnss_longitude_degrees",
 				"Meinberg clock GNSS receiver longitude",
 				[]string{"host", "clock_id"},
 				nil,
@@ -199,7 +201,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvGNSSAltitude: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_gnss_altitude_meters",
+				MetricPrefix+"clock_rcv_gnss_altitude_meters",
 				"Meinberg clock GNSS receiver altitude",
 				[]string{"host", "clock_id"},
 				nil,
@@ -208,7 +210,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvAntConnected: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_antenna_connected",
+				MetricPrefix+"clock_gnss_antenna_connected",
 				"Meinberg clock GNSS receiver antenna connected (1 = connected, 0 = not connected)",
 				[]string{"host", "clock_id"},
 				nil,
@@ -217,7 +219,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvAntShortCircuit: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_gnss_antenna_short_circuit",
+				MetricPrefix+"clock_gnss_antenna_short_circuit",
 				"Meinberg clock GNSS receiver antenna short circuit detected (1 = short circuit, 0 = no short circuit)",
 				[]string{"host", "clock_id"},
 				nil,
@@ -226,7 +228,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvSynced: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_synced",
+				MetricPrefix+"clock_rcv_synced",
 				"Meinberg clock receiver synchronization status (1 = synced, 0 = not synced)",
 				[]string{"host", "clock_id"},
 				nil,
@@ -235,7 +237,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvTracking: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_tracking",
+				MetricPrefix+"clock_rcv_tracking",
 				"Meinberg clock receiver tracking status (1 = tracking, 0 = not tracking)",
 				[]string{"host", "clock_id"},
 				nil,
@@ -244,7 +246,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvColdBoot: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_cold_boot",
+				MetricPrefix+"clock_rcv_cold_boot",
 				"Meinberg clock receiver cold boot status (1 = cold boot, 0 = not cold boot)",
 				[]string{"host", "clock_id"},
 				nil,
@@ -253,7 +255,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clockRcvWarmBoot: typedDesc{
 			desc: prometheus.NewDesc(
-				"mbg_ltos_clock_rcv_warm_boot",
+				MetricPrefix+"clock_rcv_warm_boot",
 				"Meinberg clock receiver warm boot status (1 = warm boot, 0 = not warm boot)",
 				[]string{"host", "clock_id"},
 				nil,
