@@ -63,7 +63,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_build_info",
 				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
-				[]string{"api_version", "firmware_version", "host"},
+				[]string{"host", "api_version", "firmware_version"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -72,7 +72,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			desc: prometheus.NewDesc(
 				"mbg_ltos_system_info",
 				"Meinberg system information as labels (e.g., model, serial number, host)",
-				[]string{"model", "serial_number", "host"},
+				[]string{"host", "model", "serial_number"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -232,7 +232,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			c.buildInfo.desc,
 			c.buildInfo.valueType,
 			1.0,
-			apiVersion, firmwareVersion, host,
+			host, apiVersion, firmwareVersion,
 		)
 
 		// Send the system info metric
@@ -240,7 +240,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			c.systemInfo.desc,
 			c.systemInfo.valueType,
 			1.0,
-			model, serial, host,
+			host, model, serial,
 		)
 
 		// Parse system data for system information metrics
