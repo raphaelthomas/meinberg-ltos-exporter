@@ -1,8 +1,12 @@
 # Prometheus Exporter for Meinberg LTOS
 
-This exporter is experimental and has only been tested against a Meinberg M600 device running LTOS 7.10.008.
+> [!CAUTION]
+> This exporter is experimental and has only been tested against a Meinberg
+> M600 device with a `grc180` receiver and LTOS 7.10.008.
 
-This Prometheus exporter, `meinberg_ltos_exporter`, is designed for Meinberg devices running LTOS. It retrieves the status of a device via its REST API and makes the data available as scrape-able [Prometheus metrics](./metrics.md).
+Prometheus exporter `meinberg_ltos_exporter` is designed for Meinberg devices
+running LTOS. It retrieves the status of a device via its REST API and makes
+the data available as scrape-able [Prometheus metrics](./metrics.md).
 
 ## Building
 
@@ -47,8 +51,10 @@ Flags:
       --auth-pass=AUTH-PASS      Basic auth password
 ```
 
-These parameters can be provided as environment variables or command-line arguments.
+These parameters can be provided as environment variables or command-line
+arguments.
 
 ### Authentication
 
-The exporter supports Basic Authentication. Ensure the user has the "info" access level (lowest permission level) configured on the LTOS device.
+The exporter supports Basic Authentication. Ensure the user has the "info"
+access level (lowest permission level) configured on the LTOS device.
