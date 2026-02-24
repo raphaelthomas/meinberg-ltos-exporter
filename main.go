@@ -19,6 +19,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -27,13 +28,14 @@ import (
 
 // Config holds the exporter configuration
 type Config struct {
-	ListenAddr    string
-	ListenPort    string
-	LTOSAPIURL    string
-	Timeout       time.Duration
-	LogLevel      slog.Level
-	AuthBasicUser string
-	AuthBasicPass string
+	ListenAddr      string
+	ListenPort      string
+	LTOSAPIURL      string
+	Timeout         time.Duration
+	LogLevel        slog.Level
+	AuthBasicUser   string
+	AuthBasicPass   string
+	IgnoreSSLVerify bool
 }
 
 // parseFlags parses command-line flags using kingpin
@@ -70,6 +72,9 @@ func parseFlags() *Config {
 
 	app.Flag("auth-pass", "Basic auth password").
 		StringVar(&cfg.AuthBasicPass)
+
+	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
+		BoolVar(&cfg.IgnoreSSLVerify)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
@@ -120,6 +125,11 @@ func parseFlags() *Config {
 	if pass := os.Getenv("AUTH_PASS"); pass != "" {
 		cfg.AuthBasicPass = pass
 	}
+	if ignoreSSL := os.Getenv("IGNORE_SSL_VERIFY"); ignoreSSL != "" {
+		if value, err := strconv.ParseBool(ignoreSSL); err == nil {
+			cfg.IgnoreSSLVerify = value
+		}
+	}
 
 	return cfg
 }
@@ -145,7 +155,7 @@ func main() {
 	)
 
 	// Create Meinberg API client
-	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass)
+	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
 
 	// Register metrics
 	if err := registerMetrics(client, logger); err != nil {

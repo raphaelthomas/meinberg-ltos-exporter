@@ -15,6 +15,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -94,7 +95,7 @@ func (c *Client) Target() string {
 }
 
 // NewClient creates a new Meinberg LTOS API client
-func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string) *Client {
+func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPass string, ignoreSSLVerify bool) *Client {
 	return &Client{
 		baseURL:       baseURL,
 		timeout:       timeout,
@@ -102,6 +103,9 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 		authBasicPass: authBasicPass,
 		httpClient: &http.Client{
 			Timeout: timeout,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSSLVerify},
+			},
 		},
 	}
 }

@@ -54,6 +54,7 @@ Flags:
       --log-level=info           Log level (debug, info, warn, error)
       --auth-user=AUTH-USER      Basic auth username
       --auth-pass=AUTH-PASS      Basic auth password
+      --[no-]ignore-ssl-verify   Ignore SSL certificate verification
 ```
 
 These parameters can be provided as environment variables or command-line
