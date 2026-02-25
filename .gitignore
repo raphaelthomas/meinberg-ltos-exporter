@@ -1,2 +1,2 @@
 meinberg_ltos_exporter
-data/
+*.pem

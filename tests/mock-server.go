@@ -33,10 +33,14 @@ import (
 func main() {
 	addr := flag.String("addr", "localhost", "Address to listen on")
 	port := flag.String("port", "8080", "Port to listen on")
+	file := flag.String("file", "", "Path to the JSON file to serve at /api/status")
+	sslCert := flag.String("ssl-cert", "", "Path to SSL certificate file (optional)")
+	sslKey := flag.String("ssl-key", "", "Path to SSL key file (optional)")
+
 	flag.Parse()
 
 	// Read the JSON file
-	jsonFile, err := os.Open("tests/mock-api-status-response.json")
+	jsonFile, err := os.Open(*file)
 	if err != nil {
 		log.Fatalf("Failed to open api-status-response.json: %v", err)
 	}
@@ -100,10 +104,16 @@ curl http://localhost:10123/metrics
 	})
 
 	listenAddr := fmt.Sprintf("%s:%s", *addr, *port)
-	log.Printf("Mock server listening on http://%s", listenAddr)
-	log.Printf("API endpoint available at http://%s/api/status", listenAddr)
 
-	if err := http.ListenAndServe(listenAddr, nil); err != nil {
-		log.Fatalf("Server error: %v", err)
+	if *sslCert != "" && *sslKey != "" {
+		log.Printf("Mock server listening on https://%s. API endpoint available at https://%s/api/status", listenAddr, listenAddr)
+		if err := http.ListenAndServeTLS(listenAddr, *sslCert, *sslKey, nil); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
+	} else {
+		log.Printf("Mock server listening on http://%s. API endpoint available at http://%s/api/status", listenAddr, listenAddr)
+		if err := http.ListenAndServe(listenAddr, nil); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
 	}
 }

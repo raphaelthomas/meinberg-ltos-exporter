@@ -1,6 +1,7 @@
 # To Do List for `meinberg_ltos_exporter`
 
 - [x] Add flag to skip SSL cert verification of Meinberg device
+- [x] Extend mock-server to support HTTPS endpoint
 - [ ] Add support for basic auth in mock-server.go
 - [ ] Test code with basic auth
 - [ ] Refactor code to make collector slimmer, possibly move API response parsing and validation code to client or even to a dedicated model
