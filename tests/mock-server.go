@@ -36,6 +36,8 @@ func main() {
 	file := flag.String("file", "", "Path to the JSON file to serve at /api/status")
 	sslCert := flag.String("ssl-cert", "", "Path to SSL certificate file (optional)")
 	sslKey := flag.String("ssl-key", "", "Path to SSL key file (optional)")
+	basicAuthUser := flag.String("user", "", "Username for basic authentication (optional)")
+	basicAuthPass := flag.String("pass", "", "Password for basic authentication (optional)")
 
 	flag.Parse()
 
@@ -105,15 +107,32 @@ curl http://localhost:10123/metrics
 
 	listenAddr := fmt.Sprintf("%s:%s", *addr, *port)
 
+	var handler http.Handler = http.DefaultServeMux
+	if basicAuthUser != nil && basicAuthPass != nil {
+		handler = basicAuth(http.DefaultServeMux, *basicAuthUser, *basicAuthPass)
+	}
+
 	if *sslCert != "" && *sslKey != "" {
 		log.Printf("Mock server listening on https://%s. API endpoint available at https://%s/api/status", listenAddr, listenAddr)
-		if err := http.ListenAndServeTLS(listenAddr, *sslCert, *sslKey, nil); err != nil {
+		if err := http.ListenAndServeTLS(listenAddr, *sslCert, *sslKey, handler); err != nil {
 			log.Fatalf("Server error: %v", err)
 		}
 	} else {
 		log.Printf("Mock server listening on http://%s. API endpoint available at http://%s/api/status", listenAddr, listenAddr)
-		if err := http.ListenAndServe(listenAddr, nil); err != nil {
+		if err := http.ListenAndServe(listenAddr, handler); err != nil {
 			log.Fatalf("Server error: %v", err)
 		}
 	}
+}
+
+func basicAuth(next http.Handler, username, password string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, pass, ok := r.BasicAuth()
+		if !ok || user != username || pass != password {
+			w.Header().Set("WWW-Authenticate", `Basic realm="api"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
