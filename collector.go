@@ -21,7 +21,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-const MetricPrefix = "mbg_ltos_"
+const MetricPrefix = "meinberg_ltos_"
 
 // typedDesc combines a prometheus.Desc with its value type for cleaner code
 type typedDesc struct {
