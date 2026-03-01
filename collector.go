@@ -579,7 +579,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						ch <- prometheus.MustNewConstMetric(
 							c.storageCapacity.desc,
 							c.storageCapacity.valueType,
-							volumeSize,
+							volumeSize*1024,
 							host, mountpoint,
 						)
 					}
@@ -588,7 +588,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						ch <- prometheus.MustNewConstMetric(
 							c.storageUsed.desc,
 							c.storageUsed.valueType,
-							usedBytes,
+							usedBytes*1024,
 							host, mountpoint,
 						)
 					}
