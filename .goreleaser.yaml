@@ -53,3 +53,5 @@ changelog:
     - title: '🐞 Bug Fixes'
       regexp: '^.*fix[(\w)]*:+.*'
       order: 1
+    - title: '📝 Other Changes'
+      order: 999
