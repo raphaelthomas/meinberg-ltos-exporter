@@ -2,7 +2,7 @@ USER         := admin
 PASS         := password
 NEXT_VERSION := $(shell svu next)
 
-.PHONY: build run test-certs mock-api release test
+.PHONY: build run test-certs mock-api release test clean
 build:
 	go build -o meinberg_ltos_exporter .
 
@@ -24,3 +24,7 @@ release:
 
 test:
 	go test -v ./...
+
+clean:
+	rm -rv dist/
+	rm -v meinberg_ltos_exporter
