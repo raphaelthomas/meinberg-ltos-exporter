@@ -47,46 +47,47 @@ func parseFlags() *Config {
 
 	cfg := &Config{}
 
-	// Command-line flags with kingpin
+	EnvPrefix := "MEINBERG_LTOS_EXPORTER_"
+
 	app.Flag("listen-addr", "Address to listen on").
 		Default("localhost").
-		Envar("LISTEN_ADDR").
+		Envar(EnvPrefix + "LISTEN_ADDR").
 		StringVar(&cfg.ListenAddr)
 
 	app.Flag("listen-port", "Port to listen on").
 		Default("10123").
-		Envar("LISTEN_PORT").
+		Envar(EnvPrefix + "LISTEN_PORT").
 		StringVar(&cfg.ListenPort)
 
 	app.Flag("ltos-api-url", "URL of the Meinberg LTOS API").
 		Required().
-		Envar("LTOS_API_URL").
+		Envar(EnvPrefix + "LTOS_API_URL").
 		StringVar(&cfg.LTOSAPIURL)
+
+	app.Flag("auth-user", "Basic auth username").
+		Envar(EnvPrefix + "AUTH_USER").
+		StringVar(&cfg.AuthBasicUser)
+
+	app.Flag("auth-pass", "Basic auth password").
+		Envar(EnvPrefix + "AUTH_PASS").
+		StringVar(&cfg.AuthBasicPass)
 
 	app.Flag("timeout", "Timeout for HTTP requests to Meinberg device").
 		Default("10s").
-		Envar("TIMEOUT").
+		Envar(EnvPrefix + "TIMEOUT").
 		DurationVar(&cfg.Timeout)
+
+	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
+		Default("false").
+		Envar(EnvPrefix + "IGNORE_SSL_VERIFY").
+		BoolVar(&cfg.IgnoreSSLVerify)
 
 	logLevelFlag := app.Flag("log-level", "Log level (debug, info, warn, error)").
 		Default("info").
 		Enum("debug", "info", "warn", "error")
 
-	app.Flag("auth-user", "Basic auth username").
-		Envar("AUTH_USER").
-		StringVar(&cfg.AuthBasicUser)
-
-	app.Flag("auth-pass", "Basic auth password").
-		Envar("AUTH_PASS").
-		StringVar(&cfg.AuthBasicPass)
-
-	app.Flag("ignore-ssl-verify", "Ignore SSL certificate verification").
-		Default("false").
-		BoolVar(&cfg.IgnoreSSLVerify)
-
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	// Convert log level string to slog.Level
 	switch *logLevelFlag {
 	case "debug":
 		cfg.LogLevel = slog.LevelDebug
