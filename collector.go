@@ -395,427 +395,398 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 
 	host := "unknown"
-	upValue := 0.0
-	statusData, err := c.client.FetchStatus()
+	up := 0.0
+
+	defer func() {
+		ch <- prometheus.MustNewConstMetric(
+			c.up.desc,
+			c.up.valueType,
+			up,
+			host, c.client.Target(),
+		)
+	}()
+
+	status, err := c.client.FetchStatus()
 	if err != nil {
 		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err.Error())
-	} else {
-		upValue = 1.0
+		return
+	}
 
-		// Check and parse system-information for build and system info metric
-		systemInfoRaw, ok := statusData["system-information"]
-		if !ok {
-			c.logger.Debug("Key 'system-information' missing in status data")
-			return
-		}
-		systemInfo, ok := systemInfoRaw.(map[string]any)
-		if !ok {
-			c.logger.Debug("Key 'system-information' is not of expected type map[string]interface{}")
-			return
-		}
+	up = 1.0
+	data := status.Data
 
-		dataRaw, ok := statusData["data"]
-		if !ok {
-			c.logger.Debug("Key 'data' missing in status data")
-			return
-		}
-		data, ok := dataRaw.(map[string]any)
-		if !ok {
-			c.logger.Debug("Key 'data' is not of expected type map[string]interface{}")
-			return
-		}
+	restAPIRaw, ok := data["rest-api"]
+	if !ok {
+		c.logger.Debug("Key 'rest-api' missing in data")
+		return
+	}
+	restAPI, ok := restAPIRaw.(map[string]any)
+	if !ok {
+		c.logger.Debug("Key 'rest-api' is not of expected type map[string]interface{}")
+		return
+	}
 
-		restAPIRaw, ok := data["rest-api"]
-		if !ok {
-			c.logger.Debug("Key 'rest-api' missing in data")
-			return
-		}
-		restAPI, ok := restAPIRaw.(map[string]any)
-		if !ok {
-			c.logger.Debug("Key 'rest-api' is not of expected type map[string]interface{}")
-			return
-		}
+	apiVersion, ok := restAPI["api-version"].(string)
+	if !ok {
+		c.logger.Debug("Key 'api-version' missing or not of type string in rest-api")
+		return
+	}
 
-		apiVersion, ok := restAPI["api-version"].(string)
-		if !ok {
-			c.logger.Debug("Key 'api-version' missing or not of type string in rest-api")
-			return
-		}
+	host = status.SystemInformation.Hostname
 
-		firmwareVersion, ok := systemInfo["version"].(string)
-		if !ok {
-			c.logger.Debug("Key 'version' missing or not of type string in system-information")
-			return
-		}
-		model, ok := systemInfo["model"].(string)
-		if !ok {
-			c.logger.Debug("Key 'model' missing or not of type string in system-information")
-			return
-		}
-		serial, ok := systemInfo["serial-number"].(string)
-		if !ok {
-			c.logger.Debug("Key 'serial-number' missing or not of type string in system-information")
-			return
-		}
-		host, ok = systemInfo["hostname"].(string)
-		if !ok {
-			c.logger.Debug("Key 'hostname' missing or not of type string in system-information")
-			return
-		}
-		// Send the build info metric
+	// Send the build info metric
+	ch <- prometheus.MustNewConstMetric(
+		c.buildInfo.desc,
+		c.buildInfo.valueType,
+		1.0,
+		host, apiVersion, status.SystemInformation.Version,
+	)
+
+	// Send the system info metric
+	ch <- prometheus.MustNewConstMetric(
+		c.systemInfo.desc,
+		c.systemInfo.valueType,
+		1.0,
+		host, status.SystemInformation.Model, status.SystemInformation.SerialNumber,
+	)
+
+	// Parse system data for system information metrics
+	system := data["system"].(map[string]any)
+
+	// Extract uptime (already in seconds)
+	if uptime, ok := system["uptime"].(float64); ok {
 		ch <- prometheus.MustNewConstMetric(
-			c.buildInfo.desc,
-			c.buildInfo.valueType,
-			1.0,
-			host, apiVersion, firmwareVersion,
+			c.systemUptimeSeconds.desc,
+			c.systemUptimeSeconds.valueType,
+			uptime,
+			host,
 		)
+	}
 
-		// Send the system info metric
-		ch <- prometheus.MustNewConstMetric(
-			c.systemInfo.desc,
-			c.systemInfo.valueType,
-			1.0,
-			host, model, serial,
-		)
-
-		// Parse system data for system information metrics
-		system := data["system"].(map[string]any)
-
-		// Extract uptime (already in seconds)
-		if uptime, ok := system["uptime"].(float64); ok {
+	// Extract and parse CPU load averages
+	if cpuloadStr, ok := system["cpuload"].(string); ok {
+		load1, load5, load15, err := parseCPULoad(cpuloadStr)
+		if err != nil {
+			c.logger.Debug("Failed to parse CPU load", "error", err.Error())
+		} else {
+			// Send 1-minute average
 			ch <- prometheus.MustNewConstMetric(
-				c.systemUptimeSeconds.desc,
-				c.systemUptimeSeconds.valueType,
-				uptime,
+				c.systemCPULoadAvg.desc,
+				c.systemCPULoadAvg.valueType,
+				load1,
+				host, "1",
+			)
+			// Send 5-minute average
+			ch <- prometheus.MustNewConstMetric(
+				c.systemCPULoadAvg.desc,
+				c.systemCPULoadAvg.valueType,
+				load5,
+				host, "5",
+			)
+			// Send 15-minute average
+			ch <- prometheus.MustNewConstMetric(
+				c.systemCPULoadAvg.desc,
+				c.systemCPULoadAvg.valueType,
+				load15,
+				host, "15",
+			)
+		}
+	}
+
+	// Extract and parse memory information
+	if memoryStr, ok := system["memory"].(string); ok {
+		totalBytes, freeBytes, err := parseMemory(memoryStr)
+		if err == nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.systemMemoryBytes.desc,
+				c.systemMemoryBytes.valueType,
+				totalBytes,
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.systemMemoryFreeBytes.desc,
+				c.systemMemoryFreeBytes.valueType,
+				freeBytes,
+				host,
+			)
+		} else {
+			c.logger.Debug("Failed to parse memory", "error", err.Error())
+		}
+	}
+
+	// Parse notification events and emit metrics
+	if notifications, ok := data["notification"].(map[string]any); ok {
+		if events, ok := notifications["events"].([]any); ok {
+			for _, evt := range events {
+				event := evt.(map[string]any)
+				eventType := event["type"].(string)
+				eventName := event["object-id"].(string)
+				lastTriggered := event["last-triggered"].(string)
+
+				if lastTriggered != "never" {
+					parsedTime, err := time.Parse("2006-01-02T15:04:05", lastTriggered)
+					if err != nil {
+						c.logger.Debug("Failed to parse 'last-triggered' timestamp", "error", err.Error(), "last-triggered", lastTriggered)
+						continue
+					}
+					ch <- prometheus.MustNewConstMetric(
+						c.event.desc,
+						c.event.valueType,
+						float64(parsedTime.Unix()),
+						host, eventType, eventName,
+					)
+				}
+			}
+		}
+	}
+
+	// Parse and emit storage metrics
+	if storageData, ok := system["storage"].([]any); ok {
+		for _, rawStorageEntry := range storageData {
+			storageEntry, ok := rawStorageEntry.(map[string]any)
+			if !ok {
+				c.logger.Debug("Failed to parse storage entry", "entry", rawStorageEntry)
+				continue
+			}
+
+			if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
+				if volumeSize, ok := storageEntry["size"].(float64); ok {
+					ch <- prometheus.MustNewConstMetric(
+						c.storageCapacity.desc,
+						c.storageCapacity.valueType,
+						volumeSize*1024,
+						host, mountpoint,
+					)
+				}
+
+				if usedBytes, ok := storageEntry["used"].(float64); ok {
+					ch <- prometheus.MustNewConstMetric(
+						c.storageUsed.desc,
+						c.storageUsed.valueType,
+						usedBytes*1024,
+						host, mountpoint,
+					)
+				}
+			}
+		}
+	}
+
+	// Parse and emit NTP service metrics
+	if ntpData, ok := data["ntp"].([]any); ok {
+		for _, assocRaw := range ntpData {
+			assoc := assocRaw.(map[string]any)
+
+			if assoc["object-id"].(string) != "sys" {
+				continue
+			}
+
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpStratum.desc,
+				c.ntpStratum.valueType,
+				assoc["stratum"].(float64),
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpPrecision.desc,
+				c.ntpPrecision.valueType,
+				assoc["precision"].(float64),
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpRootDelay.desc,
+				c.ntpRootDelay.valueType,
+				assoc["rootdelay"].(float64),
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpRootDispersion.desc,
+				c.ntpRootDispersion.valueType,
+				assoc["rootdisp"].(float64),
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpClockJitter.desc,
+				c.ntpClockJitter.valueType,
+				assoc["clk-jitter"].(float64),
+				host,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpClockWander.desc,
+				c.ntpClockWander.valueType,
+				assoc["clk-wander"].(float64),
+				host,
+			)
+			var leap float64
+			switch leapRaw := assoc["leap"].(type) {
+			case float64:
+				leap = leapRaw
+			case string:
+				leap, _ = strconv.ParseFloat(leapRaw, 64)
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpLeapAnnounced.desc,
+				c.ntpLeapAnnounced.valueType,
+				leap,
+				host,
+			)
+			// TODO convert weird timestamp into epoch
+			leapSecRaw := assoc["leapsec"].(string)
+			leapSecTime, _ := time.Parse("200601021504", leapSecRaw)
+			ch <- prometheus.MustNewConstMetric(
+				c.ntpLeapSecond.desc,
+				c.ntpLeapSecond.valueType,
+				float64(leapSecTime.Unix()),
 				host,
 			)
 		}
+	}
 
-		// Extract and parse CPU load averages
-		if cpuloadStr, ok := system["cpuload"].(string); ok {
-			load1, load5, load15, err := parseCPULoad(cpuloadStr)
-			if err != nil {
-				c.logger.Debug("Failed to parse CPU load", "error", err.Error())
-			} else {
-				// Send 1-minute average
-				ch <- prometheus.MustNewConstMetric(
-					c.systemCPULoadAvg.desc,
-					c.systemCPULoadAvg.valueType,
-					load1,
-					host, "1",
-				)
-				// Send 5-minute average
-				ch <- prometheus.MustNewConstMetric(
-					c.systemCPULoadAvg.desc,
-					c.systemCPULoadAvg.valueType,
-					load5,
-					host, "5",
-				)
-				// Send 15-minute average
-				ch <- prometheus.MustNewConstMetric(
-					c.systemCPULoadAvg.desc,
-					c.systemCPULoadAvg.valueType,
-					load15,
-					host, "15",
-				)
-			}
-		}
+	// Parse and emit metrics from chassis slots
+	if chassisData, ok := data["chassis0"].(map[string]any); ok {
+		if slots, ok := chassisData["slots"].([]any); ok {
+			for _, slotRaw := range slots {
+				slot := slotRaw.(map[string]any)
+				slotType := slot["slot-type"].(string)
+				slotID := slot["slot-id"].(string)
 
-		// Extract and parse memory information
-		if memoryStr, ok := system["memory"].(string); ok {
-			totalBytes, freeBytes, err := parseMemory(memoryStr)
-			if err == nil {
-				ch <- prometheus.MustNewConstMetric(
-					c.systemMemoryBytes.desc,
-					c.systemMemoryBytes.valueType,
-					totalBytes,
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.systemMemoryFreeBytes.desc,
-					c.systemMemoryFreeBytes.valueType,
-					freeBytes,
-					host,
-				)
-			} else {
-				c.logger.Debug("Failed to parse memory", "error", err.Error())
-			}
-		}
-
-		// Parse notification events and emit metrics
-		if notifications, ok := data["notification"].(map[string]any); ok {
-			if events, ok := notifications["events"].([]any); ok {
-				for _, evt := range events {
-					event := evt.(map[string]any)
-					eventType := event["type"].(string)
-					eventName := event["object-id"].(string)
-					lastTriggered := event["last-triggered"].(string)
-
-					if lastTriggered != "never" {
-						parsedTime, err := time.Parse("2006-01-02T15:04:05", lastTriggered)
-						if err != nil {
-							c.logger.Debug("Failed to parse 'last-triggered' timestamp", "error", err.Error(), "last-triggered", lastTriggered)
-							continue
+				if slotType == "cpu" {
+					if cpuModuleData, ok := slot["module"].(map[string]any); ok {
+						if cpuInfoData := cpuModuleData["info"].(map[string]any); ok {
+							cpuModel := cpuInfoData["model"].(string)
+							cpuSerial := cpuInfoData["serial-number"].(string)
+							ch <- prometheus.MustNewConstMetric(
+								c.systemCPUInfo.desc,
+								c.systemCPUInfo.valueType,
+								1.0,
+								host, cpuModel, cpuSerial,
+							)
 						}
-						ch <- prometheus.MustNewConstMetric(
-							c.event.desc,
-							c.event.valueType,
-							float64(parsedTime.Unix()),
-							host, eventType, eventName,
-						)
 					}
-				}
-			}
-		}
-
-		// Parse and emit storage metrics
-		if storageData, ok := system["storage"].([]any); ok {
-			for _, rawStorageEntry := range storageData {
-				storageEntry, ok := rawStorageEntry.(map[string]any)
-				if !ok {
-					c.logger.Debug("Failed to parse storage entry", "entry", rawStorageEntry)
-					continue
-				}
-
-				if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
-					if volumeSize, ok := storageEntry["size"].(float64); ok {
-						ch <- prometheus.MustNewConstMetric(
-							c.storageCapacity.desc,
-							c.storageCapacity.valueType,
-							volumeSize*1024,
-							host, mountpoint,
-						)
-					}
-
-					if usedBytes, ok := storageEntry["used"].(float64); ok {
-						ch <- prometheus.MustNewConstMetric(
-							c.storageUsed.desc,
-							c.storageUsed.valueType,
-							usedBytes*1024,
-							host, mountpoint,
-						)
-					}
-				}
-			}
-		}
-
-		// Parse and emit NTP service metrics
-		if ntpData, ok := data["ntp"].([]any); ok {
-			for _, assocRaw := range ntpData {
-				assoc := assocRaw.(map[string]any)
-
-				if assoc["object-id"].(string) != "sys" {
-					continue
-				}
-
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpStratum.desc,
-					c.ntpStratum.valueType,
-					assoc["stratum"].(float64),
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpPrecision.desc,
-					c.ntpPrecision.valueType,
-					assoc["precision"].(float64),
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpRootDelay.desc,
-					c.ntpRootDelay.valueType,
-					assoc["rootdelay"].(float64),
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpRootDispersion.desc,
-					c.ntpRootDispersion.valueType,
-					assoc["rootdisp"].(float64),
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpClockJitter.desc,
-					c.ntpClockJitter.valueType,
-					assoc["clk-jitter"].(float64),
-					host,
-				)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpClockWander.desc,
-					c.ntpClockWander.valueType,
-					assoc["clk-wander"].(float64),
-					host,
-				)
-				var leap float64
-				switch leapRaw := assoc["leap"].(type) {
-				case float64:
-					leap = leapRaw
-				case string:
-					leap, _ = strconv.ParseFloat(leapRaw, 64)
-				}
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpLeapAnnounced.desc,
-					c.ntpLeapAnnounced.valueType,
-					leap,
-					host,
-				)
-				// TODO convert weird timestamp into epoch
-				leapSecRaw := assoc["leapsec"].(string)
-				leapSecTime, _ := time.Parse("200601021504", leapSecRaw)
-				ch <- prometheus.MustNewConstMetric(
-					c.ntpLeapSecond.desc,
-					c.ntpLeapSecond.valueType,
-					float64(leapSecTime.Unix()),
-					host,
-				)
-			}
-		}
-
-		// Parse and emit metrics from chassis slots
-		if chassisData, ok := data["chassis0"].(map[string]any); ok {
-			if slots, ok := chassisData["slots"].([]any); ok {
-				for _, slotRaw := range slots {
-					slot := slotRaw.(map[string]any)
-					slotType := slot["slot-type"].(string)
-					slotID := slot["slot-id"].(string)
-
-					if slotType == "cpu" {
-						if cpuModuleData, ok := slot["module"].(map[string]any); ok {
-							if cpuInfoData := cpuModuleData["info"].(map[string]any); ok {
-								cpuModel := cpuInfoData["model"].(string)
-								cpuSerial := cpuInfoData["serial-number"].(string)
-								ch <- prometheus.MustNewConstMetric(
-									c.systemCPUInfo.desc,
-									c.systemCPUInfo.valueType,
-									1.0,
-									host, cpuModel, cpuSerial,
-								)
+				} else if slotType == "clk" {
+					if moduleData, ok := slot["module"].(map[string]any); ok {
+						if moduleInfoData, ok := moduleData["info"].(map[string]any); ok {
+							model := moduleInfoData["model"].(string)
+							serial := moduleInfoData["serial-number"].(string)
+							softwareRevision := moduleInfoData["software-revision"].(string)
+							oscillatorType := "unknown"
+							if syncStatus, ok := moduleData["sync-status"].(map[string]any); ok {
+								oscillatorType = syncStatus["osc-type"].(string)
 							}
+							ch <- prometheus.MustNewConstMetric(
+								c.receiverInfo.desc,
+								c.receiverInfo.valueType,
+								1.0,
+								host, slotID, model, serial, softwareRevision, oscillatorType,
+							)
 						}
-					} else if slotType == "clk" {
-						if moduleData, ok := slot["module"].(map[string]any); ok {
-							if moduleInfoData, ok := moduleData["info"].(map[string]any); ok {
-								model := moduleInfoData["model"].(string)
-								serial := moduleInfoData["serial-number"].(string)
-								softwareRevision := moduleInfoData["software-revision"].(string)
-								oscillatorType := "unknown"
-								if syncStatus, ok := moduleData["sync-status"].(map[string]any); ok {
-									oscillatorType = syncStatus["osc-type"].(string)
+
+						if satellitesData, ok := moduleData["satellites"].(map[string]any); ok {
+							satInView := satellitesData["satellites-in-view"].(float64)
+							satGood := satellitesData["good-satellites"].(float64)
+							lat := satellitesData["latitude"].(float64)
+							lon := satellitesData["longitude"].(float64)
+							alt := satellitesData["altitude"].(float64)
+
+							ch <- prometheus.MustNewConstMetric(
+								c.rcvGNSSSatInView.desc,
+								c.rcvGNSSSatInView.valueType,
+								satInView,
+								host, slotID,
+							)
+							ch <- prometheus.MustNewConstMetric(
+								c.rcvGNSSSatGood.desc,
+								c.rcvGNSSSatGood.valueType,
+								satGood,
+								host, slotID,
+							)
+							ch <- prometheus.MustNewConstMetric(
+								c.rcvGNSSLatitude.desc,
+								c.rcvGNSSLatitude.valueType,
+								lat,
+								host, slotID,
+							)
+							ch <- prometheus.MustNewConstMetric(
+								c.rcvGNSSLongitude.desc,
+								c.rcvGNSSLongitude.valueType,
+								lon,
+								host, slotID,
+							)
+							ch <- prometheus.MustNewConstMetric(
+								c.rcvGNSSAltitude.desc,
+								c.rcvGNSSAltitude.valueType,
+								alt,
+								host, slotID,
+							)
+						}
+
+						if grcData, ok := moduleData["grc"].(map[string]any); ok {
+							if grcAntData, ok := grcData["antenna"].(map[string]any); ok {
+								antConnected := 0.0
+								if grcAntData["connected"].(bool) {
+									antConnected = 1.0
 								}
 								ch <- prometheus.MustNewConstMetric(
-									c.receiverInfo.desc,
-									c.receiverInfo.valueType,
-									1.0,
-									host, slotID, model, serial, softwareRevision, oscillatorType,
+									c.rcvAntConnected.desc,
+									c.rcvAntConnected.valueType,
+									antConnected,
+									host, slotID,
+								)
+
+								antShortCircuit := 0.0
+								if grcAntData["short-circuit"].(bool) {
+									antShortCircuit = 1.0
+								}
+								ch <- prometheus.MustNewConstMetric(
+									c.rcvAntShortCircuit.desc,
+									c.rcvAntShortCircuit.valueType,
+									antShortCircuit,
+									host, slotID,
 								)
 							}
-
-							if satellitesData, ok := moduleData["satellites"].(map[string]any); ok {
-								satInView := satellitesData["satellites-in-view"].(float64)
-								satGood := satellitesData["good-satellites"].(float64)
-								lat := satellitesData["latitude"].(float64)
-								lon := satellitesData["longitude"].(float64)
-								alt := satellitesData["altitude"].(float64)
-
-								ch <- prometheus.MustNewConstMetric(
-									c.rcvGNSSSatInView.desc,
-									c.rcvGNSSSatInView.valueType,
-									satInView,
-									host, slotID,
-								)
-								ch <- prometheus.MustNewConstMetric(
-									c.rcvGNSSSatGood.desc,
-									c.rcvGNSSSatGood.valueType,
-									satGood,
-									host, slotID,
-								)
-								ch <- prometheus.MustNewConstMetric(
-									c.rcvGNSSLatitude.desc,
-									c.rcvGNSSLatitude.valueType,
-									lat,
-									host, slotID,
-								)
-								ch <- prometheus.MustNewConstMetric(
-									c.rcvGNSSLongitude.desc,
-									c.rcvGNSSLongitude.valueType,
-									lon,
-									host, slotID,
-								)
-								ch <- prometheus.MustNewConstMetric(
-									c.rcvGNSSAltitude.desc,
-									c.rcvGNSSAltitude.valueType,
-									alt,
-									host, slotID,
-								)
-							}
-
-							if grcData, ok := moduleData["grc"].(map[string]any); ok {
-								if grcAntData, ok := grcData["antenna"].(map[string]any); ok {
-									antConnected := 0.0
-									if grcAntData["connected"].(bool) {
-										antConnected = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvAntConnected.desc,
-										c.rcvAntConnected.valueType,
-										antConnected,
-										host, slotID,
-									)
-
-									antShortCircuit := 0.0
-									if grcAntData["short-circuit"].(bool) {
-										antShortCircuit = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvAntShortCircuit.desc,
-										c.rcvAntShortCircuit.valueType,
-										antShortCircuit,
-										host, slotID,
-									)
+							if grcRcvData, ok := grcData["receiver"].(map[string]any); ok {
+								synced := 0.0
+								if grcRcvData["synchronized"].(bool) {
+									synced = 1.0
 								}
-								if grcRcvData, ok := grcData["receiver"].(map[string]any); ok {
-									synced := 0.0
-									if grcRcvData["synchronized"].(bool) {
-										synced = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvSynced.desc,
-										c.rcvSynced.valueType,
-										synced,
-										host, slotID,
-									)
+								ch <- prometheus.MustNewConstMetric(
+									c.rcvSynced.desc,
+									c.rcvSynced.valueType,
+									synced,
+									host, slotID,
+								)
 
-									tracking := 0.0
-									if grcRcvData["tracking"].(bool) {
-										tracking = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvTracking.desc,
-										c.rcvTracking.valueType,
-										tracking,
-										host, slotID,
-									)
-
-									warmBoot := 0.0
-									if grcRcvData["warm-boot"].(bool) {
-										warmBoot = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvWarmBoot.desc,
-										c.rcvWarmBoot.valueType,
-										warmBoot,
-										host, slotID,
-									)
-
-									coldBoot := 0.0
-									if grcRcvData["cold-boot"].(bool) {
-										coldBoot = 1.0
-									}
-									ch <- prometheus.MustNewConstMetric(
-										c.rcvColdBoot.desc,
-										c.rcvColdBoot.valueType,
-										coldBoot,
-										host, slotID,
-									)
+								tracking := 0.0
+								if grcRcvData["tracking"].(bool) {
+									tracking = 1.0
 								}
+								ch <- prometheus.MustNewConstMetric(
+									c.rcvTracking.desc,
+									c.rcvTracking.valueType,
+									tracking,
+									host, slotID,
+								)
+
+								warmBoot := 0.0
+								if grcRcvData["warm-boot"].(bool) {
+									warmBoot = 1.0
+								}
+								ch <- prometheus.MustNewConstMetric(
+									c.rcvWarmBoot.desc,
+									c.rcvWarmBoot.valueType,
+									warmBoot,
+									host, slotID,
+								)
+
+								coldBoot := 0.0
+								if grcRcvData["cold-boot"].(bool) {
+									coldBoot = 1.0
+								}
+								ch <- prometheus.MustNewConstMetric(
+									c.rcvColdBoot.desc,
+									c.rcvColdBoot.valueType,
+									coldBoot,
+									host, slotID,
+								)
 							}
 						}
 					}
@@ -823,14 +794,6 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			}
 		}
 	}
-
-	// Create and send the up metric
-	ch <- prometheus.MustNewConstMetric(
-		c.up.desc,
-		c.up.valueType,
-		upValue,
-		host, c.client.Target(),
-	)
 
 	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 }

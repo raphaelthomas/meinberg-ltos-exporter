@@ -25,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/models"
 )
 
 // Client represents a Meinberg LTOS API client
@@ -114,7 +116,7 @@ func NewClient(baseURL string, timeout time.Duration, authBasicUser, authBasicPa
 }
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
-func (c *Client) FetchStatus() (map[string]any, error) {
+func (c *Client) FetchStatus() (*models.StatusResponse, error) {
 	c.logger.Debug("Fetching status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
 
 	req, err := http.NewRequest("GET", c.baseURL+"/api/status", nil)
@@ -122,7 +124,6 @@ func (c *Client) FetchStatus() (map[string]any, error) {
 		return nil, err
 	}
 
-	// Apply authentication
 	if c.authBasicUser != "" && c.authBasicPass != "" {
 		req.SetBasicAuth(c.authBasicUser, c.authBasicPass)
 	}
@@ -142,11 +143,11 @@ func (c *Client) FetchStatus() (map[string]any, error) {
 		return nil, err
 	}
 
-	var data map[string]any
+	var data models.StatusResponse
 	if err := json.Unmarshal(body, &data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal status response: %w", err)
 	}
 
 	c.logger.Debug("Successfully fetched status from Meinberg LTOS device API", "url", c.baseURL+"/api/status")
-	return data, nil
+	return &data, nil
 }
