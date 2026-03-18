@@ -434,33 +434,24 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		host,
 	)
 
-	// Extract and parse CPU load averages
-	load1, load5, load15, err := parseCPULoad(status.Data.System.CPULoad)
-	if err != nil {
-		c.logger.Debug("Failed to parse CPU load", "error", err.Error())
-	} else {
-		// Send 1-minute average
-		ch <- prometheus.MustNewConstMetric(
-			c.systemCPULoadAvg.desc,
-			c.systemCPULoadAvg.valueType,
-			load1,
-			host, "1",
-		)
-		// Send 5-minute average
-		ch <- prometheus.MustNewConstMetric(
-			c.systemCPULoadAvg.desc,
-			c.systemCPULoadAvg.valueType,
-			load5,
-			host, "5",
-		)
-		// Send 15-minute average
-		ch <- prometheus.MustNewConstMetric(
-			c.systemCPULoadAvg.desc,
-			c.systemCPULoadAvg.valueType,
-			load15,
-			host, "15",
-		)
-	}
+	ch <- prometheus.MustNewConstMetric(
+		c.systemCPULoadAvg.desc,
+		c.systemCPULoadAvg.valueType,
+		status.Data.System.CPULoad.Load1,
+		host, "1",
+	)
+	ch <- prometheus.MustNewConstMetric(
+		c.systemCPULoadAvg.desc,
+		c.systemCPULoadAvg.valueType,
+		status.Data.System.CPULoad.Load5,
+		host, "5",
+	)
+	ch <- prometheus.MustNewConstMetric(
+		c.systemCPULoadAvg.desc,
+		c.systemCPULoadAvg.valueType,
+		status.Data.System.CPULoad.Load15,
+		host, "15",
+	)
 
 	// Extract and parse memory information
 	totalBytes, freeBytes, err := parseMemory(status.Data.System.Memory)
