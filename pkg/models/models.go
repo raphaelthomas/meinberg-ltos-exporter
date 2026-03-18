@@ -4,6 +4,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -36,7 +37,7 @@ type RestAPI struct {
 type System struct {
 	UptimeSeconds float64         `json:"uptime"`
 	CPULoad       CPULoad         `json:"cpuload"`
-	Memory        string          `json:"memory"`
+	Memory        Memory          `json:"memory"`
 	Storage       []StorageDevice `json:"storage"`
 }
 
@@ -71,6 +72,44 @@ func (c *CPULoad) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse 15-minute CPU load: %v", err)
 	}
+
+	return nil
+}
+
+type Memory struct {
+	Total float64
+	Free  float64
+}
+
+// UnmarshalJSON memory of raw form "228428 kB total memory, 161732 kB free (70 %)"
+func (m *Memory) UnmarshalJSON(data []byte) error {
+	var rawMemoryStr string
+	if err := json.Unmarshal(data, &rawMemoryStr); err != nil {
+		return fmt.Errorf("failed to unmarshal memory string: %v", err)
+	}
+
+	totalRe := regexp.MustCompile(`(\d+)\s+kB\s+total`)
+	totalMatches := totalRe.FindStringSubmatch(rawMemoryStr)
+	if len(totalMatches) < 2 {
+		return fmt.Errorf("failed to parse total memory: %q", rawMemoryStr)
+	}
+	totalMemoryKB, err := strconv.ParseFloat(totalMatches[1], 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse total memory as float: %v", err)
+	}
+
+	freeRe := regexp.MustCompile(`(\d+)\s+kB\s+free`)
+	freeMatches := freeRe.FindStringSubmatch(rawMemoryStr)
+	if len(freeMatches) < 2 {
+		return fmt.Errorf("failed to parse free memory: %q", rawMemoryStr)
+	}
+	freeMemoryKB, err := strconv.ParseFloat(freeMatches[1], 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse free memory as float: %v", err)
+	}
+
+	m.Total = totalMemoryKB * 1024
+	m.Free = freeMemoryKB * 1024
 
 	return nil
 }

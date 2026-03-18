@@ -453,24 +453,18 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		host, "15",
 	)
 
-	// Extract and parse memory information
-	totalBytes, freeBytes, err := parseMemory(status.Data.System.Memory)
-	if err == nil {
-		ch <- prometheus.MustNewConstMetric(
-			c.systemMemoryBytes.desc,
-			c.systemMemoryBytes.valueType,
-			totalBytes,
-			host,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.systemMemoryFreeBytes.desc,
-			c.systemMemoryFreeBytes.valueType,
-			freeBytes,
-			host,
-		)
-	} else {
-		c.logger.Debug("Failed to parse memory", "error", err.Error())
-	}
+	ch <- prometheus.MustNewConstMetric(
+		c.systemMemoryBytes.desc,
+		c.systemMemoryBytes.valueType,
+		status.Data.System.Memory.Total,
+		host,
+	)
+	ch <- prometheus.MustNewConstMetric(
+		c.systemMemoryFreeBytes.desc,
+		c.systemMemoryFreeBytes.valueType,
+		status.Data.System.Memory.Free,
+		host,
+	)
 
 	// Parse notification events and emit metrics
 	notifications := status.Data.Notification

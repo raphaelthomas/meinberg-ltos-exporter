@@ -21,8 +21,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/models"
@@ -36,36 +34,6 @@ type Client struct {
 	authBasicUser string
 	authBasicPass string
 	httpClient    *http.Client
-}
-
-// parseMemory parses the memory string and returns total and free memory in bytes.
-// Example input: "228428 kB total memory, 161732 kB free (70 %)"
-// Returns an error if the memory string cannot be parsed.
-func parseMemory(memoryStr string) (float64, float64, error) {
-	// Extract total memory (first number)
-	totalRe := regexp.MustCompile(`(\d+)\s+kB\s+total`)
-	totalMatches := totalRe.FindStringSubmatch(memoryStr)
-	if len(totalMatches) < 2 {
-		return 0, 0, fmt.Errorf("failed to parse total memory: %q", memoryStr)
-	}
-	totalMemoryKB, err := strconv.ParseFloat(totalMatches[1], 64)
-	if err != nil {
-		return 0, 0, fmt.Errorf("failed to parse total memory as float: %v", err)
-	}
-
-	// Extract free memory (second number)
-	freeRe := regexp.MustCompile(`(\d+)\s+kB\s+free`)
-	freeMatches := freeRe.FindStringSubmatch(memoryStr)
-	if len(freeMatches) < 2 {
-		return 0, 0, fmt.Errorf("failed to parse free memory: %q", memoryStr)
-	}
-	freeMemoryKB, err := strconv.ParseFloat(freeMatches[1], 64)
-	if err != nil {
-		return 0, 0, fmt.Errorf("failed to parse free memory as float: %v", err)
-	}
-
-	// Convert from KB to bytes
-	return totalMemoryKB * 1024, freeMemoryKB * 1024, nil
 }
 
 // Target returns the target base URL of the Meinberg LTOS API client
