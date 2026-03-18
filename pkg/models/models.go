@@ -13,4 +13,23 @@ type SystemInformation struct {
 	Model        string `json:"model"`
 }
 
-type StatusData map[string]any
+type StatusData struct {
+	RestAPI      RestAPI          `json:"rest-api"`
+	System       System           `json:"system"`
+	Notification Notification     `json:"notification"`
+	Network      Network          `json:"network"`
+	Chassis0     Chassis          `json:"chassis0"`
+	NTP          []NTPAssociation `json:"ntp"`
+}
+
+type RestAPI struct {
+	Version string `json:"api-version"`
+}
+
+type (
+	System         map[string]any
+	Notification   map[string]any
+	Network        map[string]any
+	Chassis        map[string]any
+	NTPAssociation map[string]any
+)
