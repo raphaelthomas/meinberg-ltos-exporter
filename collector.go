@@ -421,74 +421,64 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		1.0,
 		host, status.Data.RestAPI.Version, status.SystemInformation.Version,
 	)
-
 	ch <- prometheus.MustNewConstMetric(
 		c.systemInfo.desc,
 		c.systemInfo.valueType,
 		1.0,
 		host, status.SystemInformation.Model, status.SystemInformation.SerialNumber,
 	)
+	ch <- prometheus.MustNewConstMetric(
+		c.systemUptimeSeconds.desc,
+		c.systemUptimeSeconds.valueType,
+		status.Data.System.UptimeSeconds,
+		host,
+	)
 
-	system := status.Data.System
-
-	if uptime, ok := system["uptime"].(float64); ok {
+	// Extract and parse CPU load averages
+	load1, load5, load15, err := parseCPULoad(status.Data.System.CPULoad)
+	if err != nil {
+		c.logger.Debug("Failed to parse CPU load", "error", err.Error())
+	} else {
+		// Send 1-minute average
 		ch <- prometheus.MustNewConstMetric(
-			c.systemUptimeSeconds.desc,
-			c.systemUptimeSeconds.valueType,
-			uptime,
-			host,
+			c.systemCPULoadAvg.desc,
+			c.systemCPULoadAvg.valueType,
+			load1,
+			host, "1",
+		)
+		// Send 5-minute average
+		ch <- prometheus.MustNewConstMetric(
+			c.systemCPULoadAvg.desc,
+			c.systemCPULoadAvg.valueType,
+			load5,
+			host, "5",
+		)
+		// Send 15-minute average
+		ch <- prometheus.MustNewConstMetric(
+			c.systemCPULoadAvg.desc,
+			c.systemCPULoadAvg.valueType,
+			load15,
+			host, "15",
 		)
 	}
 
-	// Extract and parse CPU load averages
-	if cpuloadStr, ok := system["cpuload"].(string); ok {
-		load1, load5, load15, err := parseCPULoad(cpuloadStr)
-		if err != nil {
-			c.logger.Debug("Failed to parse CPU load", "error", err.Error())
-		} else {
-			// Send 1-minute average
-			ch <- prometheus.MustNewConstMetric(
-				c.systemCPULoadAvg.desc,
-				c.systemCPULoadAvg.valueType,
-				load1,
-				host, "1",
-			)
-			// Send 5-minute average
-			ch <- prometheus.MustNewConstMetric(
-				c.systemCPULoadAvg.desc,
-				c.systemCPULoadAvg.valueType,
-				load5,
-				host, "5",
-			)
-			// Send 15-minute average
-			ch <- prometheus.MustNewConstMetric(
-				c.systemCPULoadAvg.desc,
-				c.systemCPULoadAvg.valueType,
-				load15,
-				host, "15",
-			)
-		}
-	}
-
 	// Extract and parse memory information
-	if memoryStr, ok := system["memory"].(string); ok {
-		totalBytes, freeBytes, err := parseMemory(memoryStr)
-		if err == nil {
-			ch <- prometheus.MustNewConstMetric(
-				c.systemMemoryBytes.desc,
-				c.systemMemoryBytes.valueType,
-				totalBytes,
-				host,
-			)
-			ch <- prometheus.MustNewConstMetric(
-				c.systemMemoryFreeBytes.desc,
-				c.systemMemoryFreeBytes.valueType,
-				freeBytes,
-				host,
-			)
-		} else {
-			c.logger.Debug("Failed to parse memory", "error", err.Error())
-		}
+	totalBytes, freeBytes, err := parseMemory(status.Data.System.Memory)
+	if err == nil {
+		ch <- prometheus.MustNewConstMetric(
+			c.systemMemoryBytes.desc,
+			c.systemMemoryBytes.valueType,
+			totalBytes,
+			host,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.systemMemoryFreeBytes.desc,
+			c.systemMemoryFreeBytes.valueType,
+			freeBytes,
+			host,
+		)
+	} else {
+		c.logger.Debug("Failed to parse memory", "error", err.Error())
 	}
 
 	// Parse notification events and emit metrics
@@ -517,32 +507,24 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	// Parse and emit storage metrics
-	if storageData, ok := system["storage"].([]any); ok {
-		for _, rawStorageEntry := range storageData {
-			storageEntry, ok := rawStorageEntry.(map[string]any)
-			if !ok {
-				c.logger.Debug("Failed to parse storage entry", "entry", rawStorageEntry)
-				continue
+	for _, storageEntry := range status.Data.System.Storage {
+		if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
+			if volumeSize, ok := storageEntry["size"].(float64); ok {
+				ch <- prometheus.MustNewConstMetric(
+					c.storageCapacity.desc,
+					c.storageCapacity.valueType,
+					volumeSize*1024,
+					host, mountpoint,
+				)
 			}
 
-			if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
-				if volumeSize, ok := storageEntry["size"].(float64); ok {
-					ch <- prometheus.MustNewConstMetric(
-						c.storageCapacity.desc,
-						c.storageCapacity.valueType,
-						volumeSize*1024,
-						host, mountpoint,
-					)
-				}
-
-				if usedBytes, ok := storageEntry["used"].(float64); ok {
-					ch <- prometheus.MustNewConstMetric(
-						c.storageUsed.desc,
-						c.storageUsed.valueType,
-						usedBytes*1024,
-						host, mountpoint,
-					)
-				}
+			if usedBytes, ok := storageEntry["used"].(float64); ok {
+				ch <- prometheus.MustNewConstMetric(
+					c.storageUsed.desc,
+					c.storageUsed.valueType,
+					usedBytes*1024,
+					host, mountpoint,
+				)
 			}
 		}
 	}

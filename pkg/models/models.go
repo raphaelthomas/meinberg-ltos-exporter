@@ -26,8 +26,15 @@ type RestAPI struct {
 	Version string `json:"api-version"`
 }
 
+type System struct {
+	UptimeSeconds float64         `json:"uptime"`
+	CPULoad       string          `json:"cpuload"`
+	Memory        string          `json:"memory"`
+	Storage       []StorageDevice `json:"storage"`
+}
+
 type (
-	System         map[string]any
+	StorageDevice  map[string]any
 	Notification   map[string]any
 	Network        map[string]any
 	Chassis        map[string]any
