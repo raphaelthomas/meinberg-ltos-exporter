@@ -45,7 +45,7 @@ type Collector struct {
 	systemMemoryBytes     typedDesc
 	systemMemoryFreeBytes typedDesc
 	event                 typedDesc
-	storageCapacity       typedDesc
+	storageTotal          typedDesc
 	storageUsed           typedDesc
 	receiverInfo          typedDesc
 	rcvGNSSSatInView      typedDesc
@@ -155,9 +155,9 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		storageCapacity: typedDesc{
+		storageTotal: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"storage_capacity_bytes",
+				MetricPrefix+"storage_total_bytes",
 				"Total size of the storage volume in bytes",
 				[]string{"host", "mount"},
 				nil,
@@ -366,7 +366,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
 	ch <- c.event.desc
-	ch <- c.storageCapacity.desc
+	ch <- c.storageTotal.desc
 	ch <- c.storageUsed.desc
 	ch <- c.receiverInfo.desc
 	ch <- c.rcvGNSSSatInView.desc
@@ -492,26 +492,19 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	// Parse and emit storage metrics
-	for _, storageEntry := range status.Data.System.Storage {
-		if mountpoint, ok := storageEntry["mountpoint"].(string); ok {
-			if volumeSize, ok := storageEntry["size"].(float64); ok {
-				ch <- prometheus.MustNewConstMetric(
-					c.storageCapacity.desc,
-					c.storageCapacity.valueType,
-					volumeSize*1024,
-					host, mountpoint,
-				)
-			}
-
-			if usedBytes, ok := storageEntry["used"].(float64); ok {
-				ch <- prometheus.MustNewConstMetric(
-					c.storageUsed.desc,
-					c.storageUsed.valueType,
-					usedBytes*1024,
-					host, mountpoint,
-				)
-			}
-		}
+	for _, mount := range status.Data.System.Mounts {
+		ch <- prometheus.MustNewConstMetric(
+			c.storageTotal.desc,
+			c.storageTotal.valueType,
+			mount.Size,
+			host, mount.Mountpoint,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.storageUsed.desc,
+			c.storageUsed.valueType,
+			mount.Used,
+			host, mount.Mountpoint,
+		)
 	}
 
 	// Parse and emit NTP service metrics

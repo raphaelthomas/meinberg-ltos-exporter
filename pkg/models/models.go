@@ -35,10 +35,10 @@ type RestAPI struct {
 }
 
 type System struct {
-	UptimeSeconds float64         `json:"uptime"`
-	CPULoad       CPULoad         `json:"cpuload"`
-	Memory        Memory          `json:"memory"`
-	Storage       []StorageDevice `json:"storage"`
+	UptimeSeconds float64 `json:"uptime"`
+	CPULoad       CPULoad `json:"cpuload"`
+	Memory        Memory  `json:"memory"`
+	Mounts        []Mount `json:"storage"`
 }
 
 type CPULoad struct {
@@ -114,8 +114,31 @@ func (m *Memory) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type Mount struct {
+	Size       float64 `json:"size"`
+	Used       float64 `json:"used"`
+	Mountpoint string  `json:"mountpoint"`
+}
+
+func (m *Mount) UnmarshalJSON(data []byte) error {
+	aux := &struct {
+		Size       float64 `json:"size"`
+		Used       float64 `json:"used"`
+		Mountpoint string  `json:"mountpoint"`
+	}{}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return fmt.Errorf("failed to unmarshal mount: %v", err)
+	}
+
+	m.Size = aux.Size * 1024
+	m.Used = aux.Used * 1024
+	m.Mountpoint = aux.Mountpoint
+
+	return nil
+}
+
 type (
-	StorageDevice  map[string]any
 	Notification   map[string]any
 	Network        map[string]any
 	Chassis        map[string]any
