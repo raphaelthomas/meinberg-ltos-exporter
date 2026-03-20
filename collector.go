@@ -47,6 +47,9 @@ type Collector struct {
 	storageTotal              typedDesc
 	storageUsed               typedDesc
 	clkInfo                   typedDesc
+	clkSyncStatus             typedDesc
+	clkOscillatorWarmedUp     typedDesc
+	clkEstTimeQuality         typedDesc
 	clkRcvGNSSSatInView       typedDesc
 	clkRcvGNSSSatGood         typedDesc
 	clkRcvGNSSLatitude        typedDesc
@@ -177,6 +180,33 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 				MetricPrefix+"clock_module_info",
 				"Meinberg clock module information as labels (model, serial number, software revision, oscillator type)",
 				[]string{"host", "clock_id", "model", "serial_number", "software_revision", "oscillator_type"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clkSyncStatus: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"clock_synchronized",
+				"Meinberg clock synchronization status (1 = synchronized, 0 = not synchronized)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clkOscillatorWarmedUp: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"clock_oscillator_warmed_up",
+				"Meinberg clock oscillator warmed up status (1 = warmed up, 0 = not warmed up)",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clkEstTimeQuality: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"clock_estimated_time_quality_seconds",
+				"Estimated upper bound in seconds on the time quality of the clock",
+				[]string{"host", "clock_id"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -368,6 +398,9 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.storageTotal.desc
 	ch <- c.storageUsed.desc
 	ch <- c.clkInfo.desc
+	ch <- c.clkSyncStatus.desc
+	ch <- c.clkOscillatorWarmedUp.desc
+	ch <- c.clkEstTimeQuality.desc
 	ch <- c.clkRcvGNSSSatInView.desc
 	ch <- c.clkRcvGNSSSatGood.desc
 	ch <- c.clkRcvGNSSLatitude.desc
@@ -567,6 +600,35 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 				c.clkInfo.valueType,
 				1.0,
 				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType,
+			)
+
+			clkSynced := 0.0
+			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Clock == "synchronized" {
+				clkSynced = 1.0
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.clkSyncStatus.desc,
+				c.clkSyncStatus.valueType,
+				clkSynced,
+				host, slot.Name,
+			)
+
+			oscWarmedUp := 0.0
+			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up" {
+				oscWarmedUp = 1.0
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.clkOscillatorWarmedUp.desc,
+				c.clkOscillatorWarmedUp.valueType,
+				oscWarmedUp,
+				host, slot.Name,
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				c.clkEstTimeQuality.desc,
+				c.clkEstTimeQuality.valueType,
+				slot.Module.SyncStatus.TimeQuality.Seconds(),
+				host, slot.Name,
 			)
 
 			if slot.Module.Satellites != nil {

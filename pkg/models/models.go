@@ -223,7 +223,38 @@ func (s SerialNumber) String() string {
 }
 
 type SyncStatus struct {
-	OscillatorType string `json:"osc-type"`
+	OscillatorType string      `json:"osc-type"`
+	TimeQuality    TimeQuality `json:"est-time-quality"`
+	ClockStatus    ClockStatus `json:"clock-status"`
+}
+
+type TimeQuality time.Duration
+
+func (t TimeQuality) Seconds() float64 {
+	return time.Duration(t).Seconds()
+}
+
+func (t *TimeQuality) UnmarshalJSON(data []byte) error {
+	var raw string
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return fmt.Errorf("failed to unmarshal time quality: %v", err)
+	}
+
+	trimmed := strings.TrimPrefix(strings.ToLower(raw), "less-than-")
+
+	d, err := time.ParseDuration(trimmed)
+	if err != nil {
+		return nil
+	}
+
+	*t = TimeQuality(d)
+
+	return nil
+}
+
+type ClockStatus struct {
+	Clock      string `json:"clock"`
+	Oscillator string `json:"oscillator"`
 }
 
 type Satellites struct {
