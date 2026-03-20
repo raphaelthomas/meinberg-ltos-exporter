@@ -545,154 +545,132 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		)
 	}
 
-	// Parse and emit metrics from chassis slots
-	chassisData := status.Data.Chassis0
-	if slots, ok := chassisData["slots"].([]any); ok {
-		for _, slotRaw := range slots {
-			slot := slotRaw.(map[string]any)
-			slotType := slot["slot-type"].(string)
-			slotID := slot["slot-id"].(string)
+	for _, slot := range status.Data.Chassis.Slots {
+		if slot.Module == nil {
+			continue
+		}
 
-			if slotType == "cpu" {
-				if cpuModuleData, ok := slot["module"].(map[string]any); ok {
-					if cpuInfoData := cpuModuleData["info"].(map[string]any); ok {
-						cpuModel := cpuInfoData["model"].(string)
-						cpuSerial := cpuInfoData["serial-number"].(string)
-						ch <- prometheus.MustNewConstMetric(
-							c.systemCPUInfo.desc,
-							c.systemCPUInfo.valueType,
-							1.0,
-							host, cpuModel, cpuSerial,
-						)
+		if slot.Type == "cpu" {
+			ch <- prometheus.MustNewConstMetric(
+				c.systemCPUInfo.desc,
+				c.systemCPUInfo.valueType,
+				1.0,
+				host, slot.Module.Info.Model, slot.Module.Info.SerialNumber,
+			)
+		} else if slot.Type == "clk" {
+			oscillatorType := "unknown"
+			if slot.Module.SyncStatus != nil {
+				oscillatorType = slot.Module.SyncStatus.OscillatorType
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.receiverInfo.desc,
+				c.receiverInfo.valueType,
+				1.0,
+				host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber, slot.Module.Info.SoftwareRevision, oscillatorType,
+			)
+
+			if slot.Module.Satellites != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.rcvGNSSSatInView.desc,
+					c.rcvGNSSSatInView.valueType,
+					slot.Module.Satellites.InView,
+					host, slot.Name,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.rcvGNSSSatGood.desc,
+					c.rcvGNSSSatGood.valueType,
+					slot.Module.Satellites.Good,
+					host, slot.Name,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.rcvGNSSLatitude.desc,
+					c.rcvGNSSLatitude.valueType,
+					slot.Module.Satellites.Latitude,
+					host, slot.Name,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.rcvGNSSLongitude.desc,
+					c.rcvGNSSLongitude.valueType,
+					slot.Module.Satellites.Longitude,
+					host, slot.Name,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.rcvGNSSAltitude.desc,
+					c.rcvGNSSAltitude.valueType,
+					slot.Module.Satellites.Altitude,
+					host, slot.Name,
+				)
+			}
+
+			if slot.Module.GRC != nil {
+				if slot.Module.GRC.Antenna != nil {
+					antConnected := 0.0
+					if slot.Module.GRC.Antenna.IsConnected {
+						antConnected = 1.0
 					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvAntConnected.desc,
+						c.rcvAntConnected.valueType,
+						antConnected,
+						host, slot.Name,
+					)
+
+					antShortCircuit := 0.0
+					if slot.Module.GRC.Antenna.HasShortCircuit {
+						antShortCircuit = 1.0
+					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvAntShortCircuit.desc,
+						c.rcvAntShortCircuit.valueType,
+						antShortCircuit,
+						host, slot.Name,
+					)
 				}
-			} else if slotType == "clk" {
-				if moduleData, ok := slot["module"].(map[string]any); ok {
-					if moduleInfoData, ok := moduleData["info"].(map[string]any); ok {
-						model := moduleInfoData["model"].(string)
-						serial := moduleInfoData["serial-number"].(string)
-						softwareRevision := moduleInfoData["software-revision"].(string)
-						oscillatorType := "unknown"
-						if syncStatus, ok := moduleData["sync-status"].(map[string]any); ok {
-							oscillatorType = syncStatus["osc-type"].(string)
-						}
-						ch <- prometheus.MustNewConstMetric(
-							c.receiverInfo.desc,
-							c.receiverInfo.valueType,
-							1.0,
-							host, slotID, model, serial, softwareRevision, oscillatorType,
-						)
+
+				if slot.Module.GRC.Receiver != nil {
+					synced := 0.0
+					if slot.Module.GRC.Receiver.IsSynchronized {
+						synced = 1.0
 					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvSynced.desc,
+						c.rcvSynced.valueType,
+						synced,
+						host, slot.Name,
+					)
 
-					if satellitesData, ok := moduleData["satellites"].(map[string]any); ok {
-						satInView := satellitesData["satellites-in-view"].(float64)
-						satGood := satellitesData["good-satellites"].(float64)
-						lat := satellitesData["latitude"].(float64)
-						lon := satellitesData["longitude"].(float64)
-						alt := satellitesData["altitude"].(float64)
-
-						ch <- prometheus.MustNewConstMetric(
-							c.rcvGNSSSatInView.desc,
-							c.rcvGNSSSatInView.valueType,
-							satInView,
-							host, slotID,
-						)
-						ch <- prometheus.MustNewConstMetric(
-							c.rcvGNSSSatGood.desc,
-							c.rcvGNSSSatGood.valueType,
-							satGood,
-							host, slotID,
-						)
-						ch <- prometheus.MustNewConstMetric(
-							c.rcvGNSSLatitude.desc,
-							c.rcvGNSSLatitude.valueType,
-							lat,
-							host, slotID,
-						)
-						ch <- prometheus.MustNewConstMetric(
-							c.rcvGNSSLongitude.desc,
-							c.rcvGNSSLongitude.valueType,
-							lon,
-							host, slotID,
-						)
-						ch <- prometheus.MustNewConstMetric(
-							c.rcvGNSSAltitude.desc,
-							c.rcvGNSSAltitude.valueType,
-							alt,
-							host, slotID,
-						)
+					tracking := 0.0
+					if slot.Module.GRC.Receiver.IsTracking {
+						tracking = 1.0
 					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvTracking.desc,
+						c.rcvTracking.valueType,
+						tracking,
+						host, slot.Name,
+					)
 
-					if grcData, ok := moduleData["grc"].(map[string]any); ok {
-						if grcAntData, ok := grcData["antenna"].(map[string]any); ok {
-							antConnected := 0.0
-							if grcAntData["connected"].(bool) {
-								antConnected = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvAntConnected.desc,
-								c.rcvAntConnected.valueType,
-								antConnected,
-								host, slotID,
-							)
-
-							antShortCircuit := 0.0
-							if grcAntData["short-circuit"].(bool) {
-								antShortCircuit = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvAntShortCircuit.desc,
-								c.rcvAntShortCircuit.valueType,
-								antShortCircuit,
-								host, slotID,
-							)
-						}
-						if grcRcvData, ok := grcData["receiver"].(map[string]any); ok {
-							synced := 0.0
-							if grcRcvData["synchronized"].(bool) {
-								synced = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvSynced.desc,
-								c.rcvSynced.valueType,
-								synced,
-								host, slotID,
-							)
-
-							tracking := 0.0
-							if grcRcvData["tracking"].(bool) {
-								tracking = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvTracking.desc,
-								c.rcvTracking.valueType,
-								tracking,
-								host, slotID,
-							)
-
-							warmBoot := 0.0
-							if grcRcvData["warm-boot"].(bool) {
-								warmBoot = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvWarmBoot.desc,
-								c.rcvWarmBoot.valueType,
-								warmBoot,
-								host, slotID,
-							)
-
-							coldBoot := 0.0
-							if grcRcvData["cold-boot"].(bool) {
-								coldBoot = 1.0
-							}
-							ch <- prometheus.MustNewConstMetric(
-								c.rcvColdBoot.desc,
-								c.rcvColdBoot.valueType,
-								coldBoot,
-								host, slotID,
-							)
-						}
+					warmBoot := 0.0
+					if slot.Module.GRC.Receiver.IsWarmBooting {
+						warmBoot = 1.0
 					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvWarmBoot.desc,
+						c.rcvWarmBoot.valueType,
+						warmBoot,
+						host, slot.Name,
+					)
+
+					coldBoot := 0.0
+					if slot.Module.GRC.Receiver.IsColdBooting {
+						coldBoot = 1.0
+					}
+					ch <- prometheus.MustNewConstMetric(
+						c.rcvColdBoot.desc,
+						c.rcvColdBoot.valueType,
+						coldBoot,
+						host, slot.Name,
+					)
 				}
 			}
 		}

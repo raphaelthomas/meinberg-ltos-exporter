@@ -26,7 +26,7 @@ type StatusData struct {
 	RestAPI      RestAPI          `json:"rest-api"`
 	System       System           `json:"system"`
 	Notification Notification     `json:"notification"`
-	Chassis0     Chassis          `json:"chassis0"`
+	Chassis      Chassis          `json:"chassis0"`
 	NTP          []NTPAssociation `json:"ntp"`
 }
 
@@ -171,7 +171,69 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type Chassis map[string]any
+type Chassis struct {
+	BackplaneRevision string `json:"backplane-revision"`
+	Slots             []Slot `json:"slots"`
+}
+
+type Slot struct {
+	Type   string      `json:"slot-type"`
+	Name   string      `json:"slot-id"`
+	Module *SlotModule `json:"module,omitempty"`
+}
+
+type SlotModule struct {
+	Info       *SlotModuleInfo `json:"info,omitempty"`
+	SyncStatus *SyncStatus     `json:"sync-status,omitempty"`
+
+	Satellites *Satellites `json:"satellites,omitempty"`
+	GRC        *GRC        `json:"grc,omitempty"`
+
+	DCF77 *DCF77 `json:"dcf77,omitempty"`
+}
+
+type SlotModuleInfo struct {
+	Model            string `json:"model"`
+	SerialNumber     string `json:"serial-number"`
+	SoftwareRevision string `json:"software-revision"`
+	FirmwareImage    string `json:"firmware-image"`
+}
+
+type SyncStatus struct {
+	OscillatorType string `json:"osc-type"`
+}
+
+type Satellites struct {
+	InView    float64 `json:"satellites-in-view"`
+	Good      float64 `json:"good-satellites"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Altitude  float64 `json:"altitude"`
+}
+
+type GRC struct {
+	Antenna  *Antenna  `json:"antenna,omitempty"`
+	Receiver *Receiver `json:"receiver,omitempty"`
+}
+
+type Antenna struct {
+	IsConnected     bool `json:"connected"`
+	HasShortCircuit bool `json:"short-circuit"`
+}
+
+type Receiver struct {
+	IsSynchronized bool `json:"synchronized"`
+	IsTracking     bool `json:"tracking"`
+	IsColdBooting  bool `json:"cold-boot"`
+	IsWarmBooting  bool `json:"warm-boot"`
+}
+
+type DCF77 struct {
+	ID            string  `json:"type"`
+	Name          string  `json:"ref-type"`
+	Correlation   float64 `json:"correlation"`
+	FieldStrength float64 `json:"field-strength"`
+}
 
 type LeapIndicator int
 
