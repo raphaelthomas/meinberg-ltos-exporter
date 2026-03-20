@@ -60,6 +60,8 @@ type Collector struct {
 	clkRcvGNSSTracking        typedDesc
 	clkRcvGNSSColdBoot        typedDesc
 	clkRcvGNSSWarmBoot        typedDesc
+	clkRcvDCF77FieldStrength  typedDesc
+	clkRcvDCF77Correlation    typedDesc
 	ntpStratum                typedDesc
 	ntpPrecision              typedDesc
 	ntpRootDelay              typedDesc
@@ -309,6 +311,24 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		clkRcvDCF77FieldStrength: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"clock_receiver_dcf77_field_strength",
+				"DCF77 receiver field strength",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		clkRcvDCF77Correlation: typedDesc{
+			desc: prometheus.NewDesc(
+				MetricPrefix+"clock_receiver_dcf77_correlation",
+				"DCF77 receiver correlation",
+				[]string{"host", "clock_id"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 		ntpStratum: typedDesc{
 			desc: prometheus.NewDesc(
 				MetricPrefix+"ntp_stratum",
@@ -411,6 +431,8 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.clkRcvGNSSTracking.desc
 	ch <- c.clkRcvGNSSColdBoot.desc
 	ch <- c.clkRcvGNSSWarmBoot.desc
+	ch <- c.clkRcvDCF77FieldStrength.desc
+	ch <- c.clkRcvDCF77Correlation.desc
 	ch <- c.ntpStratum.desc
 	ch <- c.ntpPrecision.desc
 	ch <- c.ntpRootDelay.desc
@@ -733,6 +755,21 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 						host, slot.Name,
 					)
 				}
+			}
+
+			if slot.Module.DCF77 != nil {
+				ch <- prometheus.MustNewConstMetric(
+					c.clkRcvDCF77FieldStrength.desc,
+					c.clkRcvDCF77FieldStrength.valueType,
+					slot.Module.DCF77.FieldStrength,
+					host, slot.Name,
+				)
+				ch <- prometheus.MustNewConstMetric(
+					c.clkRcvDCF77Correlation.desc,
+					c.clkRcvDCF77Correlation.valueType,
+					slot.Module.DCF77.Correlation,
+					host, slot.Name,
+				)
 			}
 		}
 	}
