@@ -146,8 +146,8 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		event: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"event",
-				"Information about events triggered on the Meinberg device",
+				MetricPrefix+"event_last_triggered_seconds",
+				"When an event last occurred as seconds since UNIX epoch (0 if never triggered)",
 				[]string{"host", "type", "event"},
 				nil,
 			),
@@ -465,14 +465,12 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	)
 
 	for _, event := range status.Data.Notification.Events {
-		if event.LastTriggeredUnix > 0 {
-			ch <- prometheus.MustNewConstMetric(
-				c.event.desc,
-				c.event.valueType,
-				event.LastTriggeredUnix,
-				host, event.Type, event.Name,
-			)
-		}
+		ch <- prometheus.MustNewConstMetric(
+			c.event.desc,
+			c.event.valueType,
+			event.LastTriggeredUnix,
+			host, event.Type, event.Name,
+		)
 	}
 
 	for _, mount := range status.Data.System.Mounts {
