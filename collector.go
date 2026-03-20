@@ -63,7 +63,7 @@ type Collector struct {
 	ntpRootDispersion     typedDesc
 	ntpClockJitter        typedDesc
 	ntpClockWander        typedDesc
-	ntpLeapAnnounced      typedDesc
+	ntpLeapIndicator      typedDesc
 	ntpLeapSecond         typedDesc
 }
 
@@ -333,10 +333,10 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		ntpLeapAnnounced: typedDesc{
+		ntpLeapIndicator: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_leap_announced",
-				"Meinberg NTP leap second announced status (1 = leap second announced, 0 = no leap second announced)",
+				MetricPrefix+"ntp_leap_indicator",
+				"Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
 				[]string{"host", "refid"},
 				nil,
 			),
@@ -384,7 +384,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.ntpRootDispersion.desc
 	ch <- c.ntpClockJitter.desc
 	ch <- c.ntpClockWander.desc
-	ch <- c.ntpLeapAnnounced.desc
+	ch <- c.ntpLeapIndicator.desc
 	ch <- c.ntpLeapSecond.desc
 }
 
@@ -532,8 +532,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			host, assoc.RefID,
 		)
 		ch <- prometheus.MustNewConstMetric(
-			c.ntpLeapAnnounced.desc,
-			c.ntpLeapAnnounced.valueType,
+			c.ntpLeapIndicator.desc,
+			c.ntpLeapIndicator.valueType,
 			float64(assoc.LeapIndicator),
 			host, assoc.RefID,
 		)
