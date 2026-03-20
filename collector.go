@@ -34,7 +34,6 @@ type Collector struct {
 	client *Client
 	logger *slog.Logger
 
-	// Metric descriptors
 	up                        typedDesc
 	buildInfo                 typedDesc
 	systemInfo                typedDesc
@@ -177,7 +176,7 @@ func NewCollector(client *Client, logger *slog.Logger) *Collector {
 		},
 		clkInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				MetricPrefix+"clock_module_info",
+				MetricPrefix+"clock_info",
 				"Meinberg clock module information as labels (model, serial number, software revision, oscillator type)",
 				[]string{"host", "clock_id", "model", "serial_number", "software_revision", "oscillator_type"},
 				nil,
