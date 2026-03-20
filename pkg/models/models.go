@@ -227,6 +227,7 @@ func (u *UnixFromYYYYMMDDhhmm) UnmarshalJSON(data []byte) error {
 
 type NTPAssociation struct {
 	AssociationID  int                  `json:"association-id"`
+	Name           string               `json:"object-id"`
 	RefID          string               `json:"refid"`
 	Stratum        float64              `json:"stratum"`
 	Precision      float64              `json:"precision"`
