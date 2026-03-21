@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package ltosapi
 
 import (
 	"crypto/tls"
@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/models"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
 // Client represents a Meinberg LTOS API client

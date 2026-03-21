@@ -25,6 +25,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	versioncollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
 
 // Config holds the exporter configuration
@@ -111,7 +112,7 @@ func parseFlags() *Config {
 }
 
 // registerMetrics registers Prometheus metrics
-func registerMetrics(client *Client, logger *slog.Logger) error {
+func registerMetrics(client *ltosapi.Client, logger *slog.Logger) error {
 	collector := NewCollector(client, logger)
 	return collector.Register()
 }
@@ -131,7 +132,7 @@ func main() {
 
 	prometheus.MustRegister(versioncollector.NewCollector("meinberg_exporter"))
 
-	client := NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
+	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
 	if err := registerMetrics(client, logger); err != nil {
 		logger.Error("Failed to register metrics", "error", err)

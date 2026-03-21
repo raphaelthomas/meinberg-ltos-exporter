@@ -19,6 +19,7 @@ import (
 	"math"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
 
 const MetricPrefix = "meinberg_ltos_"
@@ -31,7 +32,7 @@ type typedDesc struct {
 
 // Collector implements prometheus.Collector for Meinberg metrics
 type Collector struct {
-	client *Client
+	client *ltosapi.Client
 	logger *slog.Logger
 
 	up                        typedDesc
@@ -73,7 +74,7 @@ type Collector struct {
 }
 
 // NewCollector creates a new Meinberg collector
-func NewCollector(client *Client, logger *slog.Logger) *Collector {
+func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 	return &Collector{
 		client: client,
 		logger: logger,
