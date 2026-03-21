@@ -45,10 +45,7 @@ func boolToFloat64(b bool) float64 {
 type Collector struct {
 	client *ltosapi.Client
 	logger *slog.Logger
-
-	up                       typedDesc
-	clkRcvDCF77FieldStrength typedDesc
-	clkRcvDCF77Correlation   typedDesc
+	up     typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -65,24 +62,6 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		clkRcvDCF77FieldStrength: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"clock_receiver_dcf77_field_strength",
-				"DCF77 receiver field strength",
-				[]string{"host", "clock_id"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		clkRcvDCF77Correlation: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"clock_receiver_dcf77_correlation",
-				"DCF77 receiver correlation",
-				[]string{"host", "clock_id"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
 	}
 }
 
@@ -94,8 +73,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	describeStorage(ch)
 	describeClock(ch)
 	describeReceiverGNSS(ch)
-	ch <- c.clkRcvDCF77FieldStrength.desc
-	ch <- c.clkRcvDCF77Correlation.desc
+	describeReceiverDCF77(ch)
 	describeNTP(ch)
 }
 
@@ -125,17 +103,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.collectNTP(ch, host, status.Data.NTP)
 	c.collectClock(ch, host, status.Data.Chassis.Slots)
 	c.collectReceiverGNSS(ch, host, status.Data.Chassis.Slots)
-
-	for _, slot := range status.Data.Chassis.Slots {
-		if slot.Module == nil || slot.Type != "clk" {
-			continue
-		}
-
-		if slot.Module.DCF77 != nil {
-			ch <- c.clkRcvDCF77FieldStrength.mustNewConstMetric(slot.Module.DCF77.FieldStrength, host, slot.Name)
-			ch <- c.clkRcvDCF77Correlation.mustNewConstMetric(slot.Module.DCF77.Correlation, host, slot.Name)
-		}
-	}
+	c.collectReceiverDCF77(ch, host, status.Data.Chassis.Slots)
 
 	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 }
