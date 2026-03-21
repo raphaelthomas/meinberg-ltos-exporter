@@ -25,6 +25,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	versioncollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/buildinfo"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/collector"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
@@ -45,7 +46,7 @@ type Config struct {
 // parseFlags parses command-line flags using kingpin
 func parseFlags() *Config {
 	app := kingpin.New("meinberg_ltos_exporter", "Prometheus exporter for Meinberg LTOS devices")
-	app.Version(Version)
+	app.Version(buildinfo.Version)
 	app.HelpFlag.Short('h')
 
 	cfg := &Config{}
@@ -126,7 +127,7 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
 
 	logger.Info("Starting Meinberg LTOS Exporter",
-		"version", Version,
+		"version", buildinfo.Version,
 		"listen_addr", cfg.ListenAddr,
 		"listen_port", cfg.ListenPort,
 	)

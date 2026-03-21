@@ -1,4 +1,5 @@
-package main
+// Package buildinfo provides build information such as version, revision, branch, build user and build date.
+package buildinfo
 
 import (
 	"github.com/prometheus/common/version"
