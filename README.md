@@ -60,6 +60,13 @@ Flags:
       --timeout=5s               Timeout for HTTP requests to Meinberg device ($MEINBERG_LTOS_EXPORTER_TIMEOUT)
       --[no-]ignore-ssl-verify   Ignore SSL certificate verification ($MEINBERG_LTOS_EXPORTER_IGNORE_SSL_VERIFY)
       --log-level=info           Log level (debug, info, warn, error)
+      --[no-]collector.system    Enable system collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_SYSTEM)
+      --[no-]collector.notification
+                                 Enable notification collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_NOTIFICATION)
+      --[no-]collector.storage   Enable storage collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_STORAGE)
+      --[no-]collector.clock     Enable clock collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_CLOCK)
+      --[no-]collector.receiver  Enable receiver collectors (GNSS + DCF77). ($MEINBERG_LTOS_EXPORTER_COLLECTOR_RECEIVER)
+      --[no-]collector.ntp       Enable NTP collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_NTP)
 ```
 
 These parameters can be provided as environment variables or command-line

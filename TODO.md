@@ -18,4 +18,4 @@
 - [ ] add non-sys NTP metrics
 - [ ] add unit tests
 - [ ] add mock DCF77 response for test fixtures
-- [ ] add flags to enable/disable collector subsystems (like chrony_exporter)
+- [x] add flags to enable/disable collector subsystems (like chrony_exporter)

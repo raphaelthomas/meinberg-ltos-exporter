@@ -28,16 +28,30 @@ const (
 	rootSubsystem   = ""
 )
 
+type Config struct {
+	DisableDefaults bool
+
+	System       bool
+	Notification bool
+	Storage      bool
+	Clock        bool
+	Receiver     bool
+	NTP          bool
+}
+
 type Collector struct {
-	client         *ltosapi.Client
-	logger         *slog.Logger
+	config Config
+	client *ltosapi.Client
+	logger *slog.Logger
+
 	up             typedDesc
 	scrapeDuration typedDesc
 	buildInfo      typedDesc
 }
 
-func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
+func NewCollector(config Config, client *ltosapi.Client, logger *slog.Logger) *Collector {
 	return &Collector{
+		config: config,
 		client: client,
 		logger: logger,
 		up: typedDesc{
@@ -75,13 +89,25 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.scrapeDuration.desc
 	ch <- c.buildInfo.desc
 
-	describeSystem(ch)
-	describeNotification(ch)
-	describeStorage(ch)
-	describeClock(ch)
-	describeReceiverGNSS(ch)
-	describeReceiverDCF77(ch)
-	describeNTP(ch)
+	if c.config.System {
+		describeSystem(ch)
+	}
+	if c.config.Notification {
+		describeNotification(ch)
+	}
+	if c.config.Storage {
+		describeStorage(ch)
+	}
+	if c.config.Clock {
+		describeClock(ch)
+	}
+	if c.config.Receiver {
+		describeReceiverGNSS(ch)
+		describeReceiverDCF77(ch)
+	}
+	if c.config.NTP {
+		describeNTP(ch)
+	}
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
@@ -106,13 +132,25 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	host := status.SystemInformation.Hostname
 	ch <- c.buildInfo.mustNewConstMetric(1.0, c.client.Target(), host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
-	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.Chassis.Slots)
-	c.collectNotification(ch, host, status.Data.Notification.Events)
-	c.collectStorage(ch, host, status.Data.System.Mounts)
-	c.collectNTP(ch, host, status.Data.NTP)
-	c.collectClock(ch, host, status.Data.Chassis.Slots)
-	c.collectReceiverGNSS(ch, host, status.Data.Chassis.Slots)
-	c.collectReceiverDCF77(ch, host, status.Data.Chassis.Slots)
+	if c.config.System {
+		c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.Chassis.Slots)
+	}
+	if c.config.Notification {
+		c.collectNotification(ch, host, status.Data.Notification.Events)
+	}
+	if c.config.Storage {
+		c.collectStorage(ch, host, status.Data.System.Mounts)
+	}
+	if c.config.NTP {
+		c.collectNTP(ch, host, status.Data.NTP)
+	}
+	if c.config.Clock {
+		c.collectClock(ch, host, status.Data.Chassis.Slots)
+	}
+	if c.config.Receiver {
+		c.collectReceiverGNSS(ch, host, status.Data.Chassis.Slots)
+		c.collectReceiverDCF77(ch, host, status.Data.Chassis.Slots)
+	}
 
 	c.logger.Debug("Done collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 }

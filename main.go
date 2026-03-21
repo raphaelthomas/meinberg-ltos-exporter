@@ -41,6 +41,7 @@ type Config struct {
 	AuthBasicUser   string
 	AuthBasicPass   string
 	IgnoreSSLVerify bool
+	Collector       collector.Config
 }
 
 // parseFlags parses command-line flags using kingpin
@@ -95,6 +96,36 @@ func parseFlags() *Config {
 		Default("info").
 		Enum("debug", "info", "warn", "error")
 
+	app.Flag("collector.system", "Enable system collector.").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_SYSTEM").
+		BoolVar(&cfg.Collector.System)
+
+	app.Flag("collector.notification", "Enable notification collector.").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_NOTIFICATION").
+		BoolVar(&cfg.Collector.Notification)
+
+	app.Flag("collector.storage", "Enable storage collector.").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_STORAGE").
+		BoolVar(&cfg.Collector.Storage)
+
+	app.Flag("collector.clock", "Enable clock collector.").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_CLOCK").
+		BoolVar(&cfg.Collector.Clock)
+
+	app.Flag("collector.receiver", "Enable receiver collectors (GNSS + DCF77).").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_RECEIVER").
+		BoolVar(&cfg.Collector.Receiver)
+
+	app.Flag("collector.ntp", "Enable NTP collector.").
+		Default("true").
+		Envar(EnvPrefix + "COLLECTOR_NTP").
+		BoolVar(&cfg.Collector.NTP)
+
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	switch *logLevelFlag {
@@ -128,7 +159,7 @@ func main() {
 
 	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.Timeout, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify, logger)
 
-	prometheus.MustRegister(collector.NewCollector(client, logger))
+	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
 
 	http.Handle(cfg.MetricsPath, promhttp.Handler())
