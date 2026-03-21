@@ -521,22 +521,16 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			oscillatorType := "unknown"
 			if slot.Module.SyncStatus != nil {
 				oscillatorType = slot.Module.SyncStatus.OscillatorType
+
+				clkSynced := slot.Module.SyncStatus.ClockStatus.Clock == "synchronized"
+				ch <- c.clkSyncStatus.mustNewConstMetric(boolToFloat64(clkSynced), host, slot.Name)
+
+				oscWarmedUp := slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up"
+				ch <- c.clkOscillatorWarmedUp.mustNewConstMetric(boolToFloat64(oscWarmedUp), host, slot.Name)
+
+				ch <- c.clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
 			}
 			ch <- c.clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)
-
-			clkSynced := 0.0
-			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Clock == "synchronized" {
-				clkSynced = 1.0
-			}
-			ch <- c.clkSyncStatus.mustNewConstMetric(clkSynced, host, slot.Name)
-
-			oscWarmedUp := 0.0
-			if slot.Module.SyncStatus != nil && slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up" {
-				oscWarmedUp = 1.0
-			}
-			ch <- c.clkOscillatorWarmedUp.mustNewConstMetric(oscWarmedUp, host, slot.Name)
-
-			ch <- c.clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
 
 			if slot.Module.Satellites != nil {
 				ch <- c.clkRcvGNSSSatInView.mustNewConstMetric(slot.Module.Satellites.InView, host, slot.Name)
