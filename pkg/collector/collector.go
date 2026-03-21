@@ -56,8 +56,6 @@ type Collector struct {
 	systemMemoryBytes         typedDesc
 	systemMemoryFreeBytes     typedDesc
 	event                     typedDesc
-	storageTotal              typedDesc
-	storageUsed               typedDesc
 	clkInfo                   typedDesc
 	clkSyncStatus             typedDesc
 	clkOscillatorWarmedUp     typedDesc
@@ -167,24 +165,6 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				MetricPrefix+"event_last_triggered_seconds",
 				"When an event last occurred as seconds since UNIX epoch (0 if never triggered)",
 				[]string{"host", "type", "event"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		storageTotal: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"storage_total_bytes",
-				"Total size of the storage volume in bytes",
-				[]string{"host", "mount"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		storageUsed: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"storage_used_bytes",
-				"Used bytes of the storage volume",
-				[]string{"host", "mount"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -427,8 +407,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.systemMemoryBytes.desc
 	ch <- c.systemMemoryFreeBytes.desc
 	ch <- c.event.desc
-	ch <- c.storageTotal.desc
-	ch <- c.storageUsed.desc
+	describeStorage(ch)
 	ch <- c.clkInfo.desc
 	ch <- c.clkSyncStatus.desc
 	ch <- c.clkOscillatorWarmedUp.desc
@@ -489,10 +468,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		ch <- c.event.mustNewConstMetric(event.LastTriggeredUnix, host, event.Type, event.Name)
 	}
 
-	for _, mount := range status.Data.System.Mounts {
-		ch <- c.storageTotal.mustNewConstMetric(mount.Size, host, mount.Mountpoint)
-		ch <- c.storageUsed.mustNewConstMetric(mount.Used, host, mount.Mountpoint)
-	}
+	c.collectStorage(ch, host, status.Data.System.Mounts)
 
 	for _, assoc := range status.Data.NTP {
 		if !assoc.IsSys() {
