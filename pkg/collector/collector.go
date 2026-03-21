@@ -22,7 +22,10 @@ import (
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
 
-const MetricNamespace = "meinberg_ltos"
+const (
+	MetricNamespace = "meinberg_ltos"
+	rootSubsystem   = ""
+)
 
 type Collector struct {
 	client    *ltosapi.Client
@@ -37,7 +40,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 		logger: logger,
 		up: typedDesc{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(MetricNamespace, "", "up"),
+				prometheus.BuildFQName(MetricNamespace, rootSubsystem, "up"),
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
 				[]string{"host", "target"},
 				nil,
@@ -46,7 +49,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 		},
 		buildInfo: typedDesc{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(MetricNamespace, "", "build_info"),
+				prometheus.BuildFQName(MetricNamespace, rootSubsystem, "build_info"),
 				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
 				[]string{"host", "api_version", "firmware_version"},
 				nil,
