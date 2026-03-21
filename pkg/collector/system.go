@@ -82,10 +82,7 @@ func (c *Collector) collectSystem(ch chan<- prometheus.Metric, host string, syst
 	ch <- systemMemoryBytes.mustNewConstMetric(system.Memory.Total, host)
 	ch <- systemMemoryFreeBytes.mustNewConstMetric(system.Memory.Free, host)
 
-	for _, slot := range slots {
-		if slot.Module == nil || slot.Type != "cpu" {
-			continue
-		}
+	forEachCPUSlot(slots, func(slot models.Slot) {
 		ch <- systemCPUInfo.mustNewConstMetric(1.0, host, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String())
-	}
+	})
 }
