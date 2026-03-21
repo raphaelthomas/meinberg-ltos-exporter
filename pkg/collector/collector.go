@@ -17,7 +17,6 @@ package collector
 
 import (
 	"log/slog"
-	"math"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
@@ -73,14 +72,6 @@ type Collector struct {
 	clkRcvGNSSWarmBoot        typedDesc
 	clkRcvDCF77FieldStrength  typedDesc
 	clkRcvDCF77Correlation    typedDesc
-	ntpStratum                typedDesc
-	ntpPrecision              typedDesc
-	ntpRootDelay              typedDesc
-	ntpRootDispersion         typedDesc
-	ntpClockJitter            typedDesc
-	ntpClockWander            typedDesc
-	ntpLeapIndicator          typedDesc
-	ntpLeapSecond             typedDesc
 }
 
 // NewCollector creates a new Meinberg collector
@@ -322,78 +313,6 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		ntpStratum: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_stratum",
-				"Meinberg NTP stratum level",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpPrecision: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_precision_seconds",
-				"Meinberg NTP precision in seconds",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpRootDelay: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_root_delay_seconds",
-				"Meinberg NTP root delay in seconds",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpRootDispersion: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_root_dispersion_seconds",
-				"Meinberg NTP root dispersion in seconds",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpClockJitter: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_clock_jitter_seconds",
-				"Meinberg NTP clock jitter in seconds",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpClockWander: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_clock_wander_seconds_per_second",
-				"Meinberg NTP clock wander in seconds per second",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpLeapIndicator: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_leap_indicator",
-				"Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		ntpLeapSecond: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"ntp_leap_second_timestamp_seconds",
-				"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
-				[]string{"host", "refid", "assoc"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
 	}
 }
 
@@ -425,14 +344,7 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.clkRcvGNSSWarmBoot.desc
 	ch <- c.clkRcvDCF77FieldStrength.desc
 	ch <- c.clkRcvDCF77Correlation.desc
-	ch <- c.ntpStratum.desc
-	ch <- c.ntpPrecision.desc
-	ch <- c.ntpRootDelay.desc
-	ch <- c.ntpRootDispersion.desc
-	ch <- c.ntpClockJitter.desc
-	ch <- c.ntpClockWander.desc
-	ch <- c.ntpLeapIndicator.desc
-	ch <- c.ntpLeapSecond.desc
+	describeNTP(ch)
 }
 
 // Collect implements prometheus.Collector
@@ -469,22 +381,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	c.collectStorage(ch, host, status.Data.System.Mounts)
-
-	for _, assoc := range status.Data.NTP {
-		if !assoc.IsSys() {
-			continue
-		}
-
-		ch <- c.ntpStratum.mustNewConstMetric(assoc.Stratum, host, assoc.RefID, assoc.Name)
-		precisionSeconds := math.Pow(2, assoc.Precision)
-		ch <- c.ntpPrecision.mustNewConstMetric(precisionSeconds, host, assoc.RefID, assoc.Name)
-		ch <- c.ntpRootDelay.mustNewConstMetric(assoc.RootDelay, host, assoc.RefID, assoc.Name)
-		ch <- c.ntpRootDispersion.mustNewConstMetric(assoc.RootDispersion, host, assoc.RefID, assoc.Name)
-		ch <- c.ntpClockJitter.mustNewConstMetric(assoc.ClockJitter, host, assoc.RefID, assoc.Name)
-		ch <- c.ntpClockWander.mustNewConstMetric(assoc.ClockWander, host, assoc.RefID, assoc.Name)
-		ch <- c.ntpLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), host, assoc.RefID, assoc.Name)
-		ch <- c.ntpLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), host, assoc.RefID, assoc.Name)
-	}
+	c.collectNTP(ch, host, status.Data.NTP)
 
 	for _, slot := range status.Data.Chassis.Slots {
 		if slot.Module == nil {
