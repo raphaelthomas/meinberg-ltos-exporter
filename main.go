@@ -25,6 +25,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	versioncollector "github.com/prometheus/client_golang/prometheus/collectors/version"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/collector"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi"
 )
 
@@ -113,7 +114,7 @@ func parseFlags() *Config {
 
 // registerMetrics registers Prometheus metrics
 func registerMetrics(client *ltosapi.Client, logger *slog.Logger) error {
-	collector := NewCollector(client, logger)
+	collector := collector.NewCollector(client, logger)
 	return collector.Register()
 }
 
