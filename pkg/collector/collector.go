@@ -47,13 +47,6 @@ type Collector struct {
 	logger *slog.Logger
 
 	up                        typedDesc
-	buildInfo                 typedDesc
-	systemInfo                typedDesc
-	systemUptimeSeconds       typedDesc
-	systemCPUInfo             typedDesc
-	systemCPULoadAvg          typedDesc
-	systemMemoryBytes         typedDesc
-	systemMemoryFreeBytes     typedDesc
 	clkInfo                   typedDesc
 	clkSyncStatus             typedDesc
 	clkOscillatorWarmedUp     typedDesc
@@ -83,69 +76,6 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 				MetricPrefix+"up",
 				"Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)",
 				[]string{"host", "target"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		buildInfo: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"build_info",
-				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
-				[]string{"host", "api_version", "firmware_version"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemInfo: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_info",
-				"Meinberg system information as labels (e.g., model, serial number, host)",
-				[]string{"host", "model", "serial_number"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemUptimeSeconds: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_uptime_seconds",
-				"System uptime in seconds",
-				[]string{"host"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemCPUInfo: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_cpu_info",
-				"CPU information as labels (model, serial, etc.)",
-				[]string{"host", "model", "serial_number"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemCPULoadAvg: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_cpu_load_avg",
-				"CPU load averaged over 1, 5, and 15 minutes",
-				[]string{"host", "period"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemMemoryBytes: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_memory_bytes",
-				"Total memory in bytes",
-				[]string{"host"},
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		systemMemoryFreeBytes: typedDesc{
-			desc: prometheus.NewDesc(
-				MetricPrefix+"system_memory_free_bytes",
-				"Free memory in bytes",
-				[]string{"host"},
 				nil,
 			),
 			valueType: prometheus.GaugeValue,
@@ -309,12 +239,7 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 // Describe implements prometheus.Collector
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up.desc
-	ch <- c.buildInfo.desc
-	ch <- c.systemInfo.desc
-	ch <- c.systemUptimeSeconds.desc
-	ch <- c.systemCPULoadAvg.desc
-	ch <- c.systemMemoryBytes.desc
-	ch <- c.systemMemoryFreeBytes.desc
+	describeSystem(ch)
 	describeEvent(ch)
 	describeStorage(ch)
 	ch <- c.clkInfo.desc
@@ -356,68 +281,56 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	up = 1.0
 	host = status.SystemInformation.Hostname
-	ch <- c.buildInfo.mustNewConstMetric(1.0, host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
-	ch <- c.systemInfo.mustNewConstMetric(1.0, host, status.SystemInformation.Model, status.SystemInformation.SerialNumber.String())
-	ch <- c.systemUptimeSeconds.mustNewConstMetric(status.Data.System.UptimeSeconds, host)
-	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load1, host, "1")
-	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load5, host, "5")
-	ch <- c.systemCPULoadAvg.mustNewConstMetric(status.Data.System.CPULoad.Load15, host, "15")
-	ch <- c.systemMemoryBytes.mustNewConstMetric(status.Data.System.Memory.Total, host)
-	ch <- c.systemMemoryFreeBytes.mustNewConstMetric(status.Data.System.Memory.Free, host)
-
+	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.RestAPI, status.Data.Chassis.Slots)
 	c.collectEvent(ch, host, status.Data.Notification.Events)
 	c.collectStorage(ch, host, status.Data.System.Mounts)
 	c.collectNTP(ch, host, status.Data.NTP)
 
 	for _, slot := range status.Data.Chassis.Slots {
-		if slot.Module == nil {
+		if slot.Module == nil || slot.Type != "clk" {
 			continue
 		}
 
-		if slot.Type == "cpu" {
-			ch <- c.systemCPUInfo.mustNewConstMetric(1.0, host, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String())
-		} else if slot.Type == "clk" {
-			oscillatorType := "unknown"
-			if slot.Module.SyncStatus != nil {
-				oscillatorType = slot.Module.SyncStatus.OscillatorType
+		oscillatorType := "unknown"
+		if slot.Module.SyncStatus != nil {
+			oscillatorType = slot.Module.SyncStatus.OscillatorType
 
-				clkSynced := slot.Module.SyncStatus.ClockStatus.Clock == "synchronized"
-				ch <- c.clkSyncStatus.mustNewConstMetric(boolToFloat64(clkSynced), host, slot.Name)
+			clkSynced := slot.Module.SyncStatus.ClockStatus.Clock == "synchronized"
+			ch <- c.clkSyncStatus.mustNewConstMetric(boolToFloat64(clkSynced), host, slot.Name)
 
-				oscWarmedUp := slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up"
-				ch <- c.clkOscillatorWarmedUp.mustNewConstMetric(boolToFloat64(oscWarmedUp), host, slot.Name)
+			oscWarmedUp := slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up"
+			ch <- c.clkOscillatorWarmedUp.mustNewConstMetric(boolToFloat64(oscWarmedUp), host, slot.Name)
 
-				ch <- c.clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
-			}
-			ch <- c.clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)
+			ch <- c.clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
+		}
+		ch <- c.clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)
 
-			if slot.Module.Satellites != nil {
-				ch <- c.clkRcvGNSSSatInView.mustNewConstMetric(slot.Module.Satellites.InView, host, slot.Name)
-				ch <- c.clkRcvGNSSSatGood.mustNewConstMetric(slot.Module.Satellites.Good, host, slot.Name)
-				ch <- c.clkRcvGNSSLatitude.mustNewConstMetric(slot.Module.Satellites.Latitude, host, slot.Name)
-				ch <- c.clkRcvGNSSLongitude.mustNewConstMetric(slot.Module.Satellites.Longitude, host, slot.Name)
-				ch <- c.clkRcvGNSSAltitude.mustNewConstMetric(slot.Module.Satellites.Altitude, host, slot.Name)
-			}
+		if slot.Module.Satellites != nil {
+			ch <- c.clkRcvGNSSSatInView.mustNewConstMetric(slot.Module.Satellites.InView, host, slot.Name)
+			ch <- c.clkRcvGNSSSatGood.mustNewConstMetric(slot.Module.Satellites.Good, host, slot.Name)
+			ch <- c.clkRcvGNSSLatitude.mustNewConstMetric(slot.Module.Satellites.Latitude, host, slot.Name)
+			ch <- c.clkRcvGNSSLongitude.mustNewConstMetric(slot.Module.Satellites.Longitude, host, slot.Name)
+			ch <- c.clkRcvGNSSAltitude.mustNewConstMetric(slot.Module.Satellites.Altitude, host, slot.Name)
+		}
 
-			if slot.Module.GRC != nil {
-				if slot.Module.GRC.Antenna != nil {
-					ch <- c.clkRcvGNSSAntConnected.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.IsConnected), host, slot.Name)
-					ch <- c.clkRcvGNSSAntShortCircuit.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.HasShortCircuit), host, slot.Name)
-				}
-
-				if slot.Module.GRC.Receiver != nil {
-					ch <- c.clkRcvGNSSSynced.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsSynchronized), host, slot.Name)
-					ch <- c.clkRcvGNSSTracking.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsTracking), host, slot.Name)
-					ch <- c.clkRcvGNSSWarmBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsWarmBooting), host, slot.Name)
-					ch <- c.clkRcvGNSSColdBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsColdBooting), host, slot.Name)
-				}
+		if slot.Module.GRC != nil {
+			if slot.Module.GRC.Antenna != nil {
+				ch <- c.clkRcvGNSSAntConnected.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.IsConnected), host, slot.Name)
+				ch <- c.clkRcvGNSSAntShortCircuit.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Antenna.HasShortCircuit), host, slot.Name)
 			}
 
-			if slot.Module.DCF77 != nil {
-				ch <- c.clkRcvDCF77FieldStrength.mustNewConstMetric(slot.Module.DCF77.FieldStrength, host, slot.Name)
-				ch <- c.clkRcvDCF77Correlation.mustNewConstMetric(slot.Module.DCF77.Correlation, host, slot.Name)
+			if slot.Module.GRC.Receiver != nil {
+				ch <- c.clkRcvGNSSSynced.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsSynchronized), host, slot.Name)
+				ch <- c.clkRcvGNSSTracking.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsTracking), host, slot.Name)
+				ch <- c.clkRcvGNSSWarmBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsWarmBooting), host, slot.Name)
+				ch <- c.clkRcvGNSSColdBoot.mustNewConstMetric(boolToFloat64(slot.Module.GRC.Receiver.IsColdBooting), host, slot.Name)
 			}
+		}
+
+		if slot.Module.DCF77 != nil {
+			ch <- c.clkRcvDCF77FieldStrength.mustNewConstMetric(slot.Module.DCF77.FieldStrength, host, slot.Name)
+			ch <- c.clkRcvDCF77Correlation.mustNewConstMetric(slot.Module.DCF77.Correlation, host, slot.Name)
 		}
 	}
 
