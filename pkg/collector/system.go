@@ -8,15 +8,6 @@ import (
 const systemSubsystem = "system"
 
 var (
-	buildInfo = typedDesc{
-		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, "", "build_info"),
-			"Meinberg device build information as labels (e.g., API version, firmware version, host)",
-			[]string{"host", "api_version", "firmware_version"},
-			nil,
-		),
-		valueType: prometheus.GaugeValue,
-	}
 	systemInfo = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, systemSubsystem, "info"),
@@ -74,7 +65,6 @@ var (
 )
 
 func describeSystem(ch chan<- *prometheus.Desc) {
-	ch <- buildInfo.desc
 	ch <- systemInfo.desc
 	ch <- systemCPUInfo.desc
 	ch <- systemUptimeSeconds.desc
@@ -83,8 +73,7 @@ func describeSystem(ch chan<- *prometheus.Desc) {
 	ch <- systemMemoryFreeBytes.desc
 }
 
-func (c *Collector) collectSystem(ch chan<- prometheus.Metric, host string, systemInformation models.SystemInformation, system models.System, restAPI models.RestAPI, slots []models.Slot) {
-	ch <- buildInfo.mustNewConstMetric(1.0, host, restAPI.Version, systemInformation.Version)
+func (c *Collector) collectSystem(ch chan<- prometheus.Metric, host string, systemInformation models.SystemInformation, system models.System, slots []models.Slot) {
 	ch <- systemInfo.mustNewConstMetric(1.0, host, systemInformation.Model, systemInformation.SerialNumber.String())
 	ch <- systemUptimeSeconds.mustNewConstMetric(system.UptimeSeconds, host)
 	ch <- systemCPULoadAvg.mustNewConstMetric(system.CPULoad.Load1, host, "1")

@@ -24,7 +24,6 @@ import (
 
 const MetricNamespace = "meinberg_ltos"
 
-// typedDesc combines a prometheus.Desc with its value type for cleaner code
 type typedDesc struct {
 	desc      *prometheus.Desc
 	valueType prometheus.ValueType
@@ -41,14 +40,13 @@ func boolToFloat64(b bool) float64 {
 	return 0.0
 }
 
-// Collector implements prometheus.Collector for Meinberg metrics
 type Collector struct {
-	client *ltosapi.Client
-	logger *slog.Logger
-	up     typedDesc
+	client    *ltosapi.Client
+	logger    *slog.Logger
+	up        typedDesc
+	buildInfo typedDesc
 }
 
-// NewCollector creates a new Meinberg collector
 func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 	return &Collector{
 		client: client,
@@ -62,12 +60,22 @@ func NewCollector(client *ltosapi.Client, logger *slog.Logger) *Collector {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		buildInfo: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(MetricNamespace, "", "build_info"),
+				"Meinberg device build information as labels (e.g., API version, firmware version, host)",
+				[]string{"host", "api_version", "firmware_version"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 	}
 }
 
-// Describe implements prometheus.Collector
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.up.desc
+	ch <- c.buildInfo.desc
+
 	describeSystem(ch)
 	describeEvent(ch)
 	describeStorage(ch)
@@ -77,7 +85,6 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	describeNTP(ch)
 }
 
-// Collect implements prometheus.Collector
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.logger.Debug("Collecting metrics from Meinberg LTOS device", "target", c.client.Target())
 
@@ -96,8 +103,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	up = 1.0
 	host = status.SystemInformation.Hostname
+	ch <- c.buildInfo.mustNewConstMetric(1.0, host, status.Data.RestAPI.Version, status.SystemInformation.Version)
 
-	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.RestAPI, status.Data.Chassis.Slots)
+	c.collectSystem(ch, host, status.SystemInformation, status.Data.System, status.Data.Chassis.Slots)
 	c.collectEvent(ch, host, status.Data.Notification.Events)
 	c.collectStorage(ch, host, status.Data.System.Mounts)
 	c.collectNTP(ch, host, status.Data.NTP)
