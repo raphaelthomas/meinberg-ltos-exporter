@@ -1,29 +1,42 @@
 # Prometheus Exporter for Meinberg LTOS
 
-> [!CAUTION]
-> This exporter is **experimental** and has only been tested against the
-> following Meinberg devices:
-> - M600 with a `grc180` receiver and LTOS 7.10.008.
-> - M300 with a `pzf511` receiver and LTOS 7.06.014-light
-
-> [!TIP]
-> Please provide feedback through GitHub issues, include the
-> anonymized/obfuscated JSON output of `/api/status` to facilitate extending
-> the exporter.
-
 Prometheus exporter `meinberg_ltos_exporter` is designed for Meinberg devices
 running LTOS. It retrieves the status of a device via its REST API and makes
 the data available as scrape-able Prometheus metrics.
 
-## Building
+> [!WARNING]
+> This exporter is **experimental** and has only been tested against a very
+> limited number of devices. It may not work correctly with all Meinberg
+> devices and LTOS versions.
 
-To build the exporter, run the following command:
+> [!IMPORTANT]
+> Please **provide feedback** through GitHub issues, include the
+> anonymized/obfuscated JSON output of `/api/status` to facilitate extending or
+> fixing the exporter.
+
+## Supported Meinberg LTOS Devices
+
+The exporter has been tested with the following Meinberg LTOS devices:
+
+| Model | Receiver | LTOS Version |
+| ----- | -------- | ------------ |
+| M600  | grc180   | 7.10.008     |
+| M300  | pzf511   | 7.06.014-light |
+
+## Build
+
+To build the exporter, run the following command, which will create an
+executable named `meinberg_ltos_exporter`:
 
 ```sh
 make build
 ```
 
-This will create an executable named `meinberg_ltos_exporter`.
+or run `goreleaser` directly:
+
+```sh
+goreleaser build --snapshot --clean
+```
 
 ## Local Development
 
