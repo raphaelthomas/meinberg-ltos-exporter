@@ -16,7 +16,7 @@ var (
 )
 
 var (
-	ntpStratum = typedDesc{
+	ntpSysStratum = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "stratum"),
 			"Meinberg NTP stratum level",
@@ -25,7 +25,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpPrecision = typedDesc{
+	ntpSysPrecision = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "precision_seconds"),
 			"Meinberg NTP precision in seconds",
@@ -34,7 +34,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpRootDelay = typedDesc{
+	ntpSySRootDelay = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "root_delay_seconds"),
 			"Meinberg NTP root delay in seconds",
@@ -43,7 +43,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpRootDispersion = typedDesc{
+	ntpSysRootDispersion = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "root_dispersion_seconds"),
 			"Meinberg NTP root dispersion in seconds",
@@ -52,7 +52,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpClockJitter = typedDesc{
+	ntpSysClockJitter = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "clock_jitter_seconds"),
 			"Meinberg NTP clock jitter in seconds",
@@ -61,7 +61,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpClockWander = typedDesc{
+	ntpSysClockWander = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "clock_wander_seconds_per_second"),
 			"Meinberg NTP clock wander in seconds per second",
@@ -70,7 +70,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpLeapIndicator = typedDesc{
+	ntpSysLeapIndicator = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "leap_indicator"),
 			"Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
@@ -79,7 +79,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpLeapSecond = typedDesc{
+	ntpSysLeapSecond = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "leap_second_timestamp_seconds"),
 			"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
@@ -141,14 +141,14 @@ func describeNTP(ch chan<- *prometheus.Desc) {
 }
 
 func describeNTPSys(ch chan<- *prometheus.Desc) {
-	ch <- ntpStratum.desc
-	ch <- ntpPrecision.desc
-	ch <- ntpRootDelay.desc
-	ch <- ntpRootDispersion.desc
-	ch <- ntpClockJitter.desc
-	ch <- ntpClockWander.desc
-	ch <- ntpLeapIndicator.desc
-	ch <- ntpLeapSecond.desc
+	ch <- ntpSysStratum.desc
+	ch <- ntpSysPrecision.desc
+	ch <- ntpSySRootDelay.desc
+	ch <- ntpSysRootDispersion.desc
+	ch <- ntpSysClockJitter.desc
+	ch <- ntpSysClockWander.desc
+	ch <- ntpSysLeapIndicator.desc
+	ch <- ntpSysLeapSecond.desc
 }
 
 func describeNTPPeers(ch chan<- *prometheus.Desc) {
@@ -176,14 +176,14 @@ func (c *Collector) collectNTPSysAssoc(ch chan<- prometheus.Metric, host string,
 
 	labels := []string{host, assoc.RefID}
 
-	ch <- ntpStratum.mustNewConstMetric(assoc.Stratum, labels...)
-	ch <- ntpPrecision.mustNewConstMetric(assoc.PrecisionSeconds(), labels...)
-	ch <- ntpRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
-	ch <- ntpRootDispersion.mustNewConstMetric(assoc.RootDispersion, labels...)
-	ch <- ntpClockJitter.mustNewConstMetric(assoc.ClockJitter, labels...)
-	ch <- ntpClockWander.mustNewConstMetric(assoc.ClockWander, labels...)
-	ch <- ntpLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), labels...)
-	ch <- ntpLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), labels...)
+	ch <- ntpSysStratum.mustNewConstMetric(assoc.Stratum, labels...)
+	ch <- ntpSysPrecision.mustNewConstMetric(assoc.PrecisionSeconds(), labels...)
+	ch <- ntpSySRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
+	ch <- ntpSysRootDispersion.mustNewConstMetric(assoc.RootDispersion, labels...)
+	ch <- ntpSysClockJitter.mustNewConstMetric(assoc.ClockJitter, labels...)
+	ch <- ntpSysClockWander.mustNewConstMetric(assoc.ClockWander, labels...)
+	ch <- ntpSysLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), labels...)
+	ch <- ntpSysLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), labels...)
 }
 
 func (c *Collector) collectNTPPeerAssoc(ch chan<- prometheus.Metric, host string, assoc models.NTPAssociation) {
