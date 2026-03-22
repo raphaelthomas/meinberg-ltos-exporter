@@ -1,85 +1,134 @@
 package collector
 
 import (
-	"math"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
 
-const ntpSubsystem = "ntp"
+const (
+	ntpSysSubsystem  = "ntp_sys"
+	ntpPeerSubsystem = "ntp_peer"
+)
 
-var variableLabelsNTP = []string{"host", "refid", "assoc"}
+var (
+	variableLabelsNTPSys   = []string{"host", "refid"}
+	variableLabelsNTPPeers = []string{"host", "refid", "peer_name", "peer_address"}
+)
 
 var (
 	ntpStratum = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "stratum"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "stratum"),
 			"Meinberg NTP stratum level",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpPrecision = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "precision_seconds"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "precision_seconds"),
 			"Meinberg NTP precision in seconds",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpRootDelay = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "root_delay_seconds"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "root_delay_seconds"),
 			"Meinberg NTP root delay in seconds",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpRootDispersion = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "root_dispersion_seconds"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "root_dispersion_seconds"),
 			"Meinberg NTP root dispersion in seconds",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpClockJitter = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "clock_jitter_seconds"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "clock_jitter_seconds"),
 			"Meinberg NTP clock jitter in seconds",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpClockWander = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "clock_wander_seconds_per_second"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "clock_wander_seconds_per_second"),
 			"Meinberg NTP clock wander in seconds per second",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpLeapIndicator = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "leap_indicator"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "leap_indicator"),
 			"Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
 	}
 	ntpLeapSecond = typedDesc{
 		desc: prometheus.NewDesc(
-			prometheus.BuildFQName(MetricNamespace, ntpSubsystem, "leap_second_timestamp_seconds"),
+			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "leap_second_timestamp_seconds"),
 			"Meinberg NTP leap second (last or next) in seconds since UNIX epoch",
-			variableLabelsNTP,
+			variableLabelsNTPSys,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	ntpPeerOffset = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(MetricNamespace, ntpPeerSubsystem, "offset_seconds"),
+			"Meinberg NTP peer offset in seconds",
+			variableLabelsNTPPeers,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	ntpPeerDelay = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(MetricNamespace, ntpPeerSubsystem, "delay_seconds"),
+			"Meinberg NTP peer delay in seconds",
+			variableLabelsNTPPeers,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	ntpPeerDispersion = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(MetricNamespace, ntpPeerSubsystem, "dispersion_seconds"),
+			"Meinberg NTP peer dispersion in seconds",
+			variableLabelsNTPPeers,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	ntpPeerSynchronized = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(MetricNamespace, ntpPeerSubsystem, "synchronized"),
+			"Meinberg NTP peer synchronized state (1 if synchronized, 0 otherwise)",
+			variableLabelsNTPPeers,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	ntpPeerLeapIndicator = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(MetricNamespace, ntpPeerSubsystem, "leap_indicator"),
+			"Meinberg NTP peer leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)",
+			variableLabelsNTPPeers,
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
@@ -87,6 +136,11 @@ var (
 )
 
 func describeNTP(ch chan<- *prometheus.Desc) {
+	describeNTPSys(ch)
+	describeNTPPeers(ch)
+}
+
+func describeNTPSys(ch chan<- *prometheus.Desc) {
 	ch <- ntpStratum.desc
 	ch <- ntpPrecision.desc
 	ch <- ntpRootDelay.desc
@@ -97,21 +151,56 @@ func describeNTP(ch chan<- *prometheus.Desc) {
 	ch <- ntpLeapSecond.desc
 }
 
-func (c *Collector) collectNTP(ch chan<- prometheus.Metric, host string, NTPAssocs []models.NTPAssociation) {
-	for _, assoc := range NTPAssocs {
-		if !assoc.IsSys() {
-			continue
-		}
-		labels := []string{host, assoc.RefID, assoc.Name}
+func describeNTPPeers(ch chan<- *prometheus.Desc) {
+	ch <- ntpPeerOffset.desc
+	ch <- ntpPeerDelay.desc
+	ch <- ntpPeerDispersion.desc
+	ch <- ntpPeerLeapIndicator.desc
+	ch <- ntpPeerSynchronized.desc
+}
 
-		ch <- ntpStratum.mustNewConstMetric(assoc.Stratum, labels...)
-		precisionSeconds := math.Pow(2, assoc.Precision)
-		ch <- ntpPrecision.mustNewConstMetric(precisionSeconds, labels...)
-		ch <- ntpRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
-		ch <- ntpRootDispersion.mustNewConstMetric(assoc.RootDispersion, labels...)
-		ch <- ntpClockJitter.mustNewConstMetric(assoc.ClockJitter, labels...)
-		ch <- ntpClockWander.mustNewConstMetric(assoc.ClockWander, labels...)
-		ch <- ntpLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), labels...)
-		ch <- ntpLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), labels...)
+func (c *Collector) collectNTP(ch chan<- prometheus.Metric, host string, assocs []models.NTPAssociation) {
+	for _, a := range assocs {
+		if a.IsSys() {
+			c.collectNTPSysAssoc(ch, host, a)
+		} else {
+			c.collectNTPPeerAssoc(ch, host, a)
+		}
 	}
+}
+
+func (c *Collector) collectNTPSysAssoc(ch chan<- prometheus.Metric, host string, assoc models.NTPAssociation) {
+	if !assoc.IsSys() {
+		return
+	}
+
+	labels := []string{host, assoc.RefID}
+
+	ch <- ntpStratum.mustNewConstMetric(assoc.Stratum, labels...)
+	ch <- ntpPrecision.mustNewConstMetric(assoc.PrecisionSeconds(), labels...)
+	ch <- ntpRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
+	ch <- ntpRootDispersion.mustNewConstMetric(assoc.RootDispersion, labels...)
+	ch <- ntpClockJitter.mustNewConstMetric(assoc.ClockJitter, labels...)
+	ch <- ntpClockWander.mustNewConstMetric(assoc.ClockWander, labels...)
+	ch <- ntpLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), labels...)
+	ch <- ntpLeapSecond.mustNewConstMetric(float64(assoc.LeapSecondUnix), labels...)
+}
+
+func (c *Collector) collectNTPPeerAssoc(ch chan<- prometheus.Metric, host string, assoc models.NTPAssociation) {
+	if !assoc.IsPeer() {
+		return
+	}
+
+	labels := []string{host, assoc.RefID, assoc.Name, assoc.Address}
+	if assoc.Offset != nil {
+		ch <- ntpPeerOffset.mustNewConstMetric(*assoc.Offset, labels...)
+	}
+	if assoc.Delay != nil {
+		ch <- ntpPeerDelay.mustNewConstMetric(*assoc.Delay, labels...)
+	}
+	if assoc.Dispersion != nil {
+		ch <- ntpPeerDispersion.mustNewConstMetric(*assoc.Dispersion, labels...)
+	}
+	ch <- ntpPeerLeapIndicator.mustNewConstMetric(float64(assoc.LeapIndicator), labels...)
+	ch <- ntpPeerSynchronized.mustNewConstMetric(boolToFloat64(assoc.LeapIndicator != models.Unknown), labels...)
 }

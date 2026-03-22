@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 )
@@ -61,6 +62,7 @@ func (u *UnixFromYYYYMMDDhhmm) UnmarshalJSON(data []byte) error {
 
 type NTPAssociation struct {
 	AssociationID  int                  `json:"association-id"`
+	Address        string               `json:"id"`
 	Name           string               `json:"object-id"`
 	RefID          string               `json:"refid"`
 	Stratum        float64              `json:"stratum"`
@@ -81,4 +83,12 @@ type NTPAssociation struct {
 
 func (a NTPAssociation) IsSys() bool {
 	return a.AssociationID == 0
+}
+
+func (a NTPAssociation) IsPeer() bool {
+	return !a.IsSys()
+}
+
+func (a NTPAssociation) PrecisionSeconds() float64 {
+	return math.Pow(2, a.Precision)
 }
