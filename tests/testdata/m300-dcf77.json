@@ -1,0 +1,771 @@
+{
+  "system-information": {
+    "API Version": "LANTIME REST API V10.21.016",
+    "version": "fw_7.06.014-light",
+    "serial-number": "0123456789",
+    "hostname": "mbg2.time.example.com",
+    "time-stamp": "2026-03-22T20:26:47",
+    "model": "M300"
+  },
+  "data": {
+    "object-id": "status",
+    "rest-api": {
+      "api-version": "10.21.016"
+    },
+    "system": {
+      "uptime": 960935.93999999994,
+      "current-time": "2026-03-22T20:26:47.622380042 UTC",
+      "current-time-iso": "2026-03-22T20:26:47.622Z",
+      "cpuload": "0.26 0.33 0.29 2/73 24592",
+      "memory": "99052 kB total memory, 56816 kB free (57 %)",
+      "position": "46.951083, 7.438632",
+      "last-position-update": "1970-01-01 00:00:00",
+      "last-config-change": 146.93000000000001,
+      "sync-status": {
+        "reference": "clk1-pzf",
+        "ref-type": "dcf77-pzf-receiver",
+        "clock-idx": 0,
+        "osc-type": "tcxo",
+        "est-time-quality": "less-than-100ns",
+        "leapsecond-announced": false,
+        "leapsecond-date": "",
+        "clock-status": {
+          "clock": "synchronized",
+          "oscillator": "warmed-up",
+          "antenna": "connected"
+        },
+        "holdover-status": {
+          "time-offset": 0,
+          "time-elapsed": 0,
+          "tfom-out": 0
+        }
+      },
+      "front-leds": {
+        "led-ref-time": {
+          "current-color": "green",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "green",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-time-service": {
+          "current-color": "green",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "green",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-network": {
+          "current-color": "green",
+          "current-state": true,
+          "current-mode": "permanent",
+          "last-color": "green",
+          "last-state": true,
+          "last-mode": "permanent"
+        },
+        "led-alarm": {
+          "current-color": "blue",
+          "current-state": false,
+          "current-mode": "permanent",
+          "last-color": "blue",
+          "last-state": false,
+          "last-mode": "permanent"
+        }
+      },
+      "storage": [
+        {
+          "object-id": "rootfs",
+          "size": 45468,
+          "used": 30196,
+          "available": 15272,
+          "used-percent": 67,
+          "mountpoint": "/"
+        },
+        {
+          "object-id": "var",
+          "size": 16384,
+          "used": 4340,
+          "available": 12044,
+          "used-percent": 27,
+          "mountpoint": "/var"
+        },
+        {
+          "object-id": "www",
+          "size": 8192,
+          "used": 2904,
+          "available": 5288,
+          "used-percent": 36,
+          "mountpoint": "/www"
+        },
+        {
+          "object-id": "dev_sda7",
+          "size": 35897,
+          "used": 520,
+          "available": 33278,
+          "used-percent": 2,
+          "mountpoint": "/data"
+        },
+        {
+          "object-id": "dev_sda5",
+          "size": 390952,
+          "used": 341064,
+          "available": 49888,
+          "used-percent": 88,
+          "mountpoint": "/mnt/flash"
+        }
+      ],
+      "firmware": {
+        "running": "fw_7.06.014-light",
+        "selected": "fw_7.06.014-light",
+        "fwimage": "firmware-7.06.014-light-x86",
+        "firmware": [
+          {
+            "object-id": "fw_7.06.014-light",
+            "version": "7.06.14",
+            "type": "Compressed"
+          },
+          {
+            "object-id": "osv",
+            "version": "6.24.26",
+            "type": "Standard"
+          }
+        ],
+        "update": {
+          "update-in-progress": false,
+          "update-progress": 0,
+          "last-update-successful": false,
+          "last-update-started": "never",
+          "last-update-ended": "never",
+          "last-update-error": "CPU Module Mismatch: this update file is not suitable this system, the update file can be installed on x32 systems."
+        },
+        "packages": [
+          {
+            "object-id": "cli",
+            "version": "7.6.190"
+          },
+          {
+            "object-id": "data",
+            "version": "no version information"
+          },
+          {
+            "object-id": "lantime",
+            "version": "7.6.273"
+          },
+          {
+            "object-id": "ltmgmt",
+            "version": "7.6.20"
+          },
+          {
+            "object-id": "manuals",
+            "version": "7.5.7"
+          },
+          {
+            "object-id": "network",
+            "version": "7.6.106"
+          },
+          {
+            "object-id": "ntp",
+            "version": "7.6.13"
+          },
+          {
+            "object-id": "ptp2",
+            "version": "7.6.4"
+          },
+          {
+            "object-id": "snmp",
+            "version": "7.6.33"
+          },
+          {
+            "object-id": "ssh",
+            "version": "7.6.9"
+          },
+          {
+            "object-id": "system",
+            "version": "7.6.127"
+          },
+          {
+            "object-id": "web",
+            "version": "7.6.71"
+          }
+        ]
+      }
+    },
+    "notification": {
+      "events": [
+        {
+          "object-id": "normal-operation",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-03-11T17:34:15"
+        },
+        {
+          "object-id": "ntp-not-sync",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-03-22T20:22:20"
+        },
+        {
+          "object-id": "ntp-sync",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-03-22T20:23:01"
+        },
+        {
+          "object-id": "ntp-stopped",
+          "type": "critical",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "ntp-offset-limit-exceeded",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "ntp-offset-limit-ok",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "system-reboot",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "2026-03-11T17:33:37"
+        },
+        {
+          "object-id": "refclock-1-not-responding",
+          "type": "critical",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "refclock-1-not-sync",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-03-22T09:54:58"
+        },
+        {
+          "object-id": "refclock-1-sync",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-03-22T09:57:02"
+        },
+        {
+          "object-id": "antenna-faulty",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-03-16T06:49:03"
+        },
+        {
+          "object-id": "antenna-reconnect",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-03-16T06:49:07"
+        },
+        {
+          "object-id": "device-configuration-changed",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "leap-second-announced",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor-alert",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sync-monitor-ok",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "network-link-down",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "2026-03-21T23:50:48"
+        },
+        {
+          "object-id": "network-link-up",
+          "type": "info",
+          "triggered": 1,
+          "last-triggered": "2026-03-21T23:51:01"
+        },
+        {
+          "object-id": "low-system-resources",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "sufficient-system-resources",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "https-certificate-expired",
+          "type": "error",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "https-certificate-expire-warning",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "self-signed-https-certificate-in-use",
+          "type": "warning",
+          "triggered": 1,
+          "last-triggered": "2026-03-11T17:33:44"
+        },
+        {
+          "object-id": "cluster-master-changed",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "cluster-falseticker-detected",
+          "type": "warning",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "cluster-falseticker-cleared",
+          "type": "info",
+          "triggered": 0,
+          "last-triggered": "never"
+        },
+        {
+          "object-id": "faillock:-user-banned",
+          "type": "action",
+          "triggered": 0,
+          "last-triggered": "never"
+        }
+      ]
+    },
+    "network": {
+      "ports": [
+        {
+          "object-id": "lan0",
+          "duplex": "full",
+          "operstate": true,
+          "speed": "100",
+          "mac-address": "00:13:95:03:66:aa",
+          "link": true,
+          "slot-id": 7,
+          "slot-name": "cpu",
+          "port-id": 0,
+          "card-name": "c05f1-v31"
+        },
+        {
+          "object-id": "lan1",
+          "duplex": "-",
+          "operstate": false,
+          "speed": "-",
+          "mac-address": "00:60:6e:7c:31:92",
+          "link": false,
+          "slot-id": 7,
+          "slot-name": "cpu",
+          "port-id": 1,
+          "card-name": "c05f1-v31"
+        }
+      ],
+      "interfaces": [
+        {
+          "object-id": "vif0",
+          "ifname": "lan0:0",
+          "addresses": [
+            {
+              "object-id": "ipv4-dhcp",
+              "iftype": "dhcp",
+              "addresstype": "ipv4",
+              "subnet": "255.255.255.0",
+              "address": "192.0.2.123"
+            }
+          ]
+        },
+        {
+          "object-id": "vif1",
+          "ifname": "lan1:1"
+        }
+      ]
+    },
+    "services": {
+      "network": {
+        "daytime": {
+          "running": false
+        },
+        "ftp": {
+          "running": false
+        },
+        "telnet": {
+          "running": false
+        },
+        "time": {
+          "running": false
+        },
+        "mbgdevman": {
+          "running": false
+        },
+        "webshell": {
+          "running": false
+        },
+        "ssh": {
+          "running": true
+        },
+        "ntp": {
+          "running": true
+        },
+        "http": {
+          "running": true
+        },
+        "https": {
+          "running": true
+        },
+        "snmp": {
+          "running": false
+        }
+      },
+      "global": {
+        "filemon": {
+          "running": true
+        },
+        "ldap": {
+          "running": false
+        },
+        "noise": {
+          "running": false
+        },
+        "serial_console": {
+          "running": true
+        },
+        "softwatch": {
+          "running": false
+        },
+        "syslog": {
+          "running": true
+        },
+        "syncteam": {
+          "running": false
+        },
+        "linkmonitor": {
+          "running": true
+        },
+        "lldp": {
+          "running": false
+        },
+        "netconfig": {
+          "running": true
+        },
+        "portauth": {
+          "running": false
+        },
+        "avahi": {
+          "running": false
+        },
+        "dbus": {
+          "running": true
+        }
+      }
+    },
+    "chassis0": {
+      "model": "M300",
+      "serial-number": "0123456789",
+      "backplane-revision": "V45",
+      "firmware-image": "fw_7.06.014-light",
+      "slot-layout": "1,9",
+      "slots": [
+        {
+          "object-id": "pwr1",
+          "slot-id": "pwr1",
+          "slot-type": "pwr",
+          "slot-position": "0,0,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "power-available": true,
+            "power-capacity": 50.0,
+            "info": {
+              "model": "psu",
+              "serial-number": "",
+              "software-revision": "",
+              "firmware-image": ""
+            }
+          }
+        },
+        {
+          "object-id": "pwr2",
+          "slot-id": "pwr2",
+          "slot-type": "pwr",
+          "slot-position": "0,1,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "power-available": false,
+            "power-capacity": 0.0
+          }
+        },
+        {
+          "object-id": "cpu",
+          "slot-id": "cpu",
+          "slot-type": "cpu",
+          "slot-position": "0,4,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "info": {
+              "model": "c05f1-v31",
+              "serial-number": "N/A",
+              "software-revision": "7.06.014",
+              "firmware-image": "fw_7.06.014-light",
+              "sensors": {
+                "temperature-1": 55.0
+              }
+            }
+          }
+        },
+        {
+          "object-id": "clk1",
+          "slot-id": "clk1",
+          "slot-type": "clk",
+          "slot-position": "0,2,1",
+          "slot-orientation": "vertical",
+          "module": {
+            "info": {
+              "model": "pzf511",
+              "serial-number": "001122334455    ",
+              "software-revision": "v2.08",
+              "sensors": {
+                "temperature-1": 0.0,
+                "temperature-2": 0.0
+              }
+            },
+            "supported-string-types": [],
+            "mrs": [
+              {
+                "object-id": "priority0",
+                "info": {
+                  "settings": {
+                    "bias": 0.0,
+                    "precision": 0.0,
+                    "id": {
+                      "type": "gps",
+                      "instance": 0
+                    }
+                  }
+                }
+              }
+            ],
+            "sync-status": {
+              "clock-idx": "selected",
+              "osc-type": "tcxo",
+              "est-time-quality": "less-than-100ns",
+              "clock-status": {
+                "clock": "synchronized",
+                "oscillator": "warmed-up"
+              }
+            },
+            "dcf77": {
+              "ref-type": "dcf77-pzf-receiver",
+              "type": "pzf",
+              "correlation": 56,
+              "field-strength": 40,
+              "pcps": {
+                "freer": false,
+                "dl-enb": false,
+                "syncd": true,
+                "dl-ann": false,
+                "utc": false,
+                "ls-ann": false,
+                "iftm": false,
+                "invt": false
+              }
+            }
+          }
+        },
+        {
+          "object-id": "clk2",
+          "slot-id": "clk2",
+          "slot-type": "clk",
+          "slot-position": "0,3,1",
+          "slot-orientation": "vertical"
+        },
+        {
+          "object-id": "int1",
+          "slot-id": "int1",
+          "slot-type": "int",
+          "slot-position": "0,5,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int2",
+          "slot-id": "int2",
+          "slot-type": "int",
+          "slot-position": "0,6,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int3",
+          "slot-id": "int3",
+          "slot-type": "int",
+          "slot-position": "0,7,1",
+          "slot-orientation": "internal"
+        },
+        {
+          "object-id": "int4",
+          "slot-id": "int4",
+          "slot-type": "int",
+          "slot-position": "0,8,1",
+          "slot-orientation": "internal"
+        }
+      ]
+    },
+    "ntp": [
+      {
+        "object-id": "sys",
+        "association-id": 0,
+        "id": "127.0.0.1",
+        "name": "localhost",
+        "status": "02f8",
+        "status-sys-leap-indicator": "none",
+        "status-sys-clock-source": "lf-radio",
+        "status-sys-event-counter": 15,
+        "status-sys-event-code": "no-system-peer",
+        "leap": "0",
+        "stratum": 1,
+        "precision": -18,
+        "rootdelay": 0.0,
+        "rootdisp": 0.00014999999999999999,
+        "refid": "PZF",
+        "tai": 37,
+        "leapsec": "201701010000",
+        "clk-jitter": 6.0000000000000002e-6,
+        "clk-wander": 5.0000000000000004e-6,
+        "expire": "202312280000"
+      },
+      {
+        "object-id": "ref_1",
+        "association-id": 39640,
+        "id": "127.127.8.0",
+        "name": "127.127.8.0",
+        "status": "971a",
+        "status-peer-configured": true,
+        "status-peer-auth-enabled": false,
+        "status-peer-auth-ok": false,
+        "status-peer-reach-ok": true,
+        "status-peer-broadcast": false,
+        "status-peer-selection": "pps-peer",
+        "status-peer-event-counter": 1,
+        "status-peer-event-code": "sys-peer",
+        "leap": "0",
+        "stratum": 0,
+        "precision": -18,
+        "rootdelay": 0.0,
+        "rootdisp": 0.0,
+        "refid": "PZF",
+        "offset": -3.9999999999999998e-6,
+        "delay": 0.0,
+        "dispersion": 0.00011999999999999999,
+        "reach": 0
+      }
+    ],
+    "syncmon": {
+      "last-updated": "never",
+      "nodes": []
+    },
+    "syncteam": {
+      "operational-mode": "disabled",
+      "time-quality": "unknown",
+      "leapsecond-state": "no-leap-second",
+      "current-tfom": 15,
+      "team-members": 0,
+      "online-members": 0,
+      "offline-members": 0,
+      "reference": {
+        "current-team-master": "unknown",
+        "current-team-reference": "unknown"
+      },
+      "members": []
+    },
+    "chassis-xhe": [
+      {
+        "object-id": "clk1",
+        "xhe-info": {
+          "status": "unknown",
+          "osc-type": 0,
+          "features": 0,
+          "software-revision": "v0.00",
+          "xhe-id": "",
+          "rub-id": "",
+          "comstat": {
+            "xhe-type": false,
+            "xhe-features": false,
+            "software-revision": false,
+            "hxe-id": false,
+            "rub-id": false
+          }
+        },
+        "xhe-sys-status": {
+          "status": {
+            "voltage-overrange": false,
+            "low-voltage": false,
+            "generic-cell-error": false,
+            "low-temperature": false,
+            "overheated": false,
+            "pps-lock": true,
+            "ppl-enabled": false,
+            "pps-input-signal": true
+          },
+          "comstat": {
+            "status": false,
+            "temperature": false
+          },
+          "temperature-sensors": {
+            "chassis": 0.0,
+            "xtal": 0.0,
+            "cell": 0.0,
+            "lamp": 0.0
+          }
+        },
+        "xhe-psu-status": {
+          "status": "unknown",
+          "comstat": {
+            "status": false,
+            "alarm-status": false
+          },
+          "psu-status": {
+            "psu1": "ok",
+            "psu2": "ok"
+          },
+          "alarms": {
+            "alarm-led": false
+          }
+        }
+      }
+    ]
+  },
+  "changes": {
+    "pending-changes": 0
+  },
+  "links": {
+    "self": "http://localhost/api/status"
+  }
+}

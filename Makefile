@@ -6,9 +6,6 @@ NEXT_VERSION := $(shell svu next)
 build:
 	go build -o meinberg_ltos_exporter .
 
-run: build
-	AUTH_PASS=$(PASS) ./meinberg_ltos_exporter --ltos-api-url https://localhost:8080 --log-level=debug --ignore-ssl-verify --auth-user $(USER)
-
 test-certs:
 	 openssl req -x509 -newkey rsa:4096 -keyout tests/mock-key.pem -out tests/mock-cert.pem -sha256 -days 5 -nodes -subj "/C=CH/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 
@@ -28,3 +25,4 @@ test:
 clean:
 	rm -rv dist/
 	rm -v meinberg_ltos_exporter
+	rm -v tests/mock-key.pem tests/mock-cert.pem
