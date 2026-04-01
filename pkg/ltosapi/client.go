@@ -75,6 +75,7 @@ func (c *Client) FetchStatus() (*models.StatusResponse, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		c.logger.Warn("Unexpected status code from Meinberg LTOS device API", "url", c.baseURL+"/api/status", "status_code", resp.StatusCode)
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
