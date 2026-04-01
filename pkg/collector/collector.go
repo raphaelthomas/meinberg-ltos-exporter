@@ -29,8 +29,6 @@ const (
 )
 
 type Config struct {
-	DisableDefaults bool
-
 	System       bool
 	Notification bool
 	Storage      bool
