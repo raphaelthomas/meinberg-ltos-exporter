@@ -34,7 +34,7 @@ var (
 		),
 		valueType: prometheus.GaugeValue,
 	}
-	ntpSySRootDelay = typedDesc{
+	ntpSysRootDelay = typedDesc{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(MetricNamespace, ntpSysSubsystem, "root_delay_seconds"),
 			"Meinberg NTP root delay in seconds",
@@ -143,7 +143,7 @@ func describeNTP(ch chan<- *prometheus.Desc) {
 func describeNTPSys(ch chan<- *prometheus.Desc) {
 	ch <- ntpSysStratum.desc
 	ch <- ntpSysPrecision.desc
-	ch <- ntpSySRootDelay.desc
+	ch <- ntpSysRootDelay.desc
 	ch <- ntpSysRootDispersion.desc
 	ch <- ntpSysClockJitter.desc
 	ch <- ntpSysClockWander.desc
@@ -178,7 +178,7 @@ func (c *Collector) collectNTPSysAssoc(ch chan<- prometheus.Metric, host string,
 
 	ch <- ntpSysStratum.mustNewConstMetric(assoc.Stratum, labels...)
 	ch <- ntpSysPrecision.mustNewConstMetric(assoc.PrecisionSeconds(), labels...)
-	ch <- ntpSySRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
+	ch <- ntpSysRootDelay.mustNewConstMetric(assoc.RootDelay, labels...)
 	ch <- ntpSysRootDispersion.mustNewConstMetric(assoc.RootDispersion, labels...)
 	ch <- ntpSysClockJitter.mustNewConstMetric(assoc.ClockJitter, labels...)
 	ch <- ntpSysClockWander.mustNewConstMetric(assoc.ClockWander, labels...)
