@@ -31,9 +31,11 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 	e.Name = aux.Name
 
 	if aux.LastTriggered != "never" {
-		if parsedTime, err := time.Parse("2006-01-02T15:04:05", aux.LastTriggered); err == nil {
-			e.LastTriggeredUnix = float64(parsedTime.Unix())
+		parsedTime, err := time.Parse("2006-01-02T15:04:05", aux.LastTriggered)
+		if err != nil {
+			return fmt.Errorf("failed to parse last-triggered timestamp %q: %w", aux.LastTriggered, err)
 		}
+		e.LastTriggeredUnix = float64(parsedTime.Unix())
 	}
 
 	return nil
