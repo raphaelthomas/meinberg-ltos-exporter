@@ -58,11 +58,8 @@ func (c *Collector) collectClock(ch chan<- prometheus.Metric, host string, slots
 		oscillatorType := "unknown"
 		if slot.Module.SyncStatus != nil {
 			oscillatorType = slot.Module.SyncStatus.OscillatorType
-			clkSynced := slot.Module.SyncStatus.ClockStatus.Clock == "synchronized"
-			oscWarmedUp := slot.Module.SyncStatus.ClockStatus.Oscillator == "warmed-up"
-
-			ch <- clkSyncStatus.mustNewConstMetric(boolToFloat64(clkSynced), host, slot.Name)
-			ch <- clkOscillatorWarmedUp.mustNewConstMetric(boolToFloat64(oscWarmedUp), host, slot.Name)
+			ch <- clkSyncStatus.mustNewConstMetric(boolToFloat64(slot.Module.SyncStatus.ClockStatus.IsSynchronized()), host, slot.Name)
+			ch <- clkOscillatorWarmedUp.mustNewConstMetric(boolToFloat64(slot.Module.SyncStatus.ClockStatus.IsOscillatorWarmedUp()), host, slot.Name)
 			ch <- clkEstTimeQuality.mustNewConstMetric(slot.Module.SyncStatus.TimeQuality.Seconds(), host, slot.Name)
 		}
 		ch <- clkInfo.mustNewConstMetric(1.0, host, slot.Name, slot.Module.Info.Model, slot.Module.Info.SerialNumber.String(), slot.Module.Info.SoftwareRevision, oscillatorType)

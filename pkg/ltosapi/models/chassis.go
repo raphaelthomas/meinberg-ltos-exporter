@@ -70,6 +70,14 @@ type ClockStatus struct {
 	Oscillator string `json:"oscillator"`
 }
 
+func (cs ClockStatus) IsSynchronized() bool {
+	return cs.Clock == "synchronized"
+}
+
+func (cs ClockStatus) IsOscillatorWarmedUp() bool {
+	return cs.Oscillator == "warmed-up"
+}
+
 type Satellites struct {
 	InView    float64 `json:"satellites-in-view"`
 	Good      float64 `json:"good-satellites"`
