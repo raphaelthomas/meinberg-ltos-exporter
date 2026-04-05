@@ -146,7 +146,7 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	status, err := c.client.FetchStatus(ctx)
 	if err != nil {
-		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err.Error())
+		c.logger.Warn("Failed to fetch Meinberg LTOS device status", "error", err)
 		return
 	}
 
