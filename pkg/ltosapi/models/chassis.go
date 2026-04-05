@@ -18,6 +18,11 @@ type Slot struct {
 	Module *SlotModule `json:"module,omitempty"`
 }
 
+const (
+	SlotTypeCPU   = "cpu"
+	SlotTypeClock = "clk"
+)
+
 type SlotModule struct {
 	Info       *SlotModuleInfo `json:"info,omitempty"`
 	SyncStatus *SyncStatus     `json:"sync-status,omitempty"`

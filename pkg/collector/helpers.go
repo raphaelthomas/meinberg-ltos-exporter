@@ -31,9 +31,9 @@ func forEachSlotWithModule(slots []models.Slot, slotType string, fn func(models.
 }
 
 func forEachCPUSlot(slots []models.Slot, fn func(models.Slot)) {
-	forEachSlotWithModule(slots, "cpu", fn)
+	forEachSlotWithModule(slots, models.SlotTypeCPU, fn)
 }
 
 func forEachClockSlot(slots []models.Slot, fn func(models.Slot)) {
-	forEachSlotWithModule(slots, "clk", fn)
+	forEachSlotWithModule(slots, models.SlotTypeClock, fn)
 }
