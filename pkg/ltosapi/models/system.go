@@ -21,6 +21,11 @@ type CPULoad struct {
 	Load15 float64
 }
 
+var (
+	memTotalRe = regexp.MustCompile(`(\d+)\s+kB\s+total`)
+	memFreeRe  = regexp.MustCompile(`(\d+)\s+kB\s+free`)
+)
+
 // UnmarshalJSON CPULoad of raw form "0.48 0.66 0.57 2/99 25157"
 func (c *CPULoad) UnmarshalJSON(data []byte) error {
 	var rawCPULoadStr string
@@ -62,8 +67,7 @@ func (m *Memory) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("failed to unmarshal memory string: %v", err)
 	}
 
-	totalRe := regexp.MustCompile(`(\d+)\s+kB\s+total`)
-	totalMatches := totalRe.FindStringSubmatch(rawMemoryStr)
+	totalMatches := memTotalRe.FindStringSubmatch(rawMemoryStr)
 	if len(totalMatches) < 2 {
 		return fmt.Errorf("failed to parse total memory: %q", rawMemoryStr)
 	}
@@ -72,8 +76,7 @@ func (m *Memory) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("failed to parse total memory as float: %v", err)
 	}
 
-	freeRe := regexp.MustCompile(`(\d+)\s+kB\s+free`)
-	freeMatches := freeRe.FindStringSubmatch(rawMemoryStr)
+	freeMatches := memFreeRe.FindStringSubmatch(rawMemoryStr)
 	if len(freeMatches) < 2 {
 		return fmt.Errorf("failed to parse free memory: %q", rawMemoryStr)
 	}
