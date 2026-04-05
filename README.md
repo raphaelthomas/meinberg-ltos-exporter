@@ -6,18 +6,16 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/raphaelthomas/meinberg-ltos-exporter)](https://goreportcard.com/report/github.com/raphaelthomas/meinberg-ltos-exporter)
 
 Prometheus exporter `meinberg_ltos_exporter` is designed for Meinberg devices
-running LTOS. It retrieves the status of a device via its REST API and makes
-the data available as scrape-able Prometheus metrics.
+running LTOS. It retrieves the status of a device via its REST API and exposes
+the available data as Prometheus metrics.
 
-> [!WARNING]
+> [!IMPORTANT]
 > This exporter is **experimental** and has only been tested against a very
 > limited number of devices. It may not work correctly with all Meinberg
 > devices and LTOS versions.
-
-> [!IMPORTANT]
-> Please **provide feedback** through GitHub issues, include the
-> anonymized/obfuscated JSON output of `/api/status` to facilitate extending or
-> fixing the exporter.
+>
+> Please **provide feedback** through GitHub issues, include the anonymized
+> JSON output of `/api/status` to facilitate extending or fixing the exporter.
 
 ## Supported Meinberg LTOS Devices
 
@@ -28,29 +26,15 @@ The exporter has been tested with the following Meinberg LTOS devices:
 | M600  | grc180   | 7.10.008     |
 | M300  | pzf511   | 7.06.014-light |
 
-## Build
-
-To build the exporter, run the following command, which will create an
-executable named `meinberg_ltos_exporter`:
+## Docker
 
 ```sh
-make build
-```
-
-or run `goreleaser` directly:
-
-```sh
-goreleaser build --snapshot --clean
-```
-
-## Local Development
-
-Run the following in three separate terminal windows:
-
-```sh
-make run
-go run tests/mock_server.go
-curl -s http://localhost:10123/metrics | grep mbg_ltos
+docker run --rm -p 10123:10123 \
+  -e MEINBERG_LTOS_EXPORTER_LTOS_API_URL=https://<device> \
+  -e MEINBERG_LTOS_EXPORTER_AUTH_USER=<user> \
+  -e MEINBERG_LTOS_EXPORTER_AUTH_PASS=<password> \
+  -e MEINBERG_LTOS_EXPORTER_LISTEN_ADDR=0.0.0.0 \
+  ghcr.io/raphaelthomas/meinberg_ltos_exporter:latest
 ```
 
 ## Configuration
@@ -95,12 +79,27 @@ arguments.
 The exporter supports Basic Authentication. Ensure the user has the "info"
 access level (lowest permission level) configured on the LTOS device.
 
-## Docker
+## Build
+
+To build the exporter, run the following command, which will create an
+executable named `meinberg_ltos_exporter`:
 
 ```sh
-docker run --rm -p 10123:10123 \
-  -e MEINBERG_LTOS_EXPORTER_LTOS_API_URL=https://<device>/api \
-  -e MEINBERG_LTOS_EXPORTER_AUTH_USER=<user> \
-  -e MEINBERG_LTOS_EXPORTER_AUTH_PASS=<password> \
-  ghcr.io/raphaelthomas/meinberg_ltos_exporter:latest
+make build
+```
+
+or run `goreleaser` directly:
+
+```sh
+goreleaser build --snapshot --clean
+```
+
+## Local Development
+
+Run the following in three separate terminal windows:
+
+```sh
+make run
+go run tests/mock_server.go
+curl -s http://localhost:10123/metrics | grep mbg_ltos
 ```
