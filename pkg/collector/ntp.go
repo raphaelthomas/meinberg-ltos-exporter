@@ -170,10 +170,6 @@ func (c *Collector) collectNTP(ch chan<- prometheus.Metric, host string, assocs 
 }
 
 func (c *Collector) collectNTPSysAssoc(ch chan<- prometheus.Metric, host string, assoc models.NTPAssociation) {
-	if !assoc.IsSys() {
-		return
-	}
-
 	labels := []string{host, assoc.RefID}
 
 	ch <- ntpSysStratum.mustNewConstMetric(assoc.Stratum, labels...)
@@ -187,10 +183,6 @@ func (c *Collector) collectNTPSysAssoc(ch chan<- prometheus.Metric, host string,
 }
 
 func (c *Collector) collectNTPPeerAssoc(ch chan<- prometheus.Metric, host string, assoc models.NTPAssociation) {
-	if !assoc.IsPeer() {
-		return
-	}
-
 	labels := []string{host, assoc.RefID, assoc.Name, assoc.Address}
 	if assoc.Offset != nil {
 		ch <- ntpPeerOffset.mustNewConstMetric(*assoc.Offset, labels...)
