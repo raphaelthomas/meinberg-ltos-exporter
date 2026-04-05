@@ -169,7 +169,7 @@ func main() {
 </body>
 </html>
 		`, cfg.LTOSAPIURL); err != nil {
-				logger.Error("Failed to write response", slog.String("error", err.Error()))
+				logger.Error("Failed to write response", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
