@@ -95,7 +95,7 @@ func main() {
   <h2>Example Usage</h2>
   <pre>
 # Start the exporter pointing to this mock server:
-./meinberg_ltos_exporter --ltos-api-url http://localhost:%s
+./meinberg_ltos_exporter --target http://localhost:%s
 
 # In another terminal, fetch metrics:
 curl http://localhost:10123/metrics

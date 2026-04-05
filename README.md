@@ -30,7 +30,7 @@ The exporter has been tested with the following Meinberg LTOS devices:
 
 ```sh
 docker run --rm -p 10123:10123 \
-  -e MEINBERG_LTOS_EXPORTER_LTOS_API_URL=https://<device> \
+  -e MEINBERG_LTOS_EXPORTER_TARGET=https://<device> \
   -e MEINBERG_LTOS_EXPORTER_AUTH_USER=<user> \
   -e MEINBERG_LTOS_EXPORTER_AUTH_PASS=<password> \
   -e MEINBERG_LTOS_EXPORTER_LISTEN_ADDR=0.0.0.0 \
@@ -42,7 +42,7 @@ docker run --rm -p 10123:10123 \
 The exporter can be configured via the following parameters:
 
 ``` sh
-usage: meinberg_ltos_exporter --ltos-api-url=LTOS-API-URL [<flags>]
+usage: meinberg_ltos_exporter --target=TARGET [<flags>]
 
 Prometheus exporter for Meinberg LTOS devices
 
@@ -55,8 +55,7 @@ Flags:
       --web.listen-port="10123"  Port to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_PORT)
       --web.telemetry-path="/metrics"
                                  Path under which to expose metrics ($MEINBERG_LTOS_EXPORTER_METRICS_PATH)
-      --ltos-api-url=LTOS-API-URL
-                                 URL of the Meinberg LTOS API ($MEINBERG_LTOS_EXPORTER_LTOS_API_URL)
+      --target=TARGET            Base URL of the Meinberg LTOS device (e.g. https://clock.example.com) ($MEINBERG_LTOS_EXPORTER_TARGET)
       --auth-user=AUTH-USER      Basic auth username ($MEINBERG_LTOS_EXPORTER_AUTH_USER)
       --auth-pass=AUTH-PASS      Basic auth password ($MEINBERG_LTOS_EXPORTER_AUTH_PASS)
       --timeout=5s               Timeout for HTTP requests to Meinberg device ($MEINBERG_LTOS_EXPORTER_TIMEOUT)

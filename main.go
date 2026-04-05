@@ -34,7 +34,7 @@ type Config struct {
 	ListenAddr      string
 	ListenPort      string
 	MetricsPath     string
-	LTOSAPIURL      string
+	Target          string
 	LogLevel        slog.Level
 	AuthBasicUser   string
 	AuthBasicPass   string
@@ -67,10 +67,10 @@ func parseFlags() *Config {
 		Envar(envPrefix + "METRICS_PATH").
 		StringVar(&cfg.MetricsPath)
 
-	app.Flag("ltos-api-url", "URL of the Meinberg LTOS API").
+	app.Flag("target", "Base URL of the Meinberg LTOS device (e.g. https://clock.example.com)").
 		Required().
-		Envar(envPrefix + "LTOS_API_URL").
-		StringVar(&cfg.LTOSAPIURL)
+		Envar(envPrefix + "TARGET").
+		StringVar(&cfg.Target)
 
 	app.Flag("auth-user", "Basic auth username").
 		Envar(envPrefix + "AUTH_USER").
@@ -144,9 +144,10 @@ func main() {
 		"version", buildinfo.Version,
 		"listen_addr", cfg.ListenAddr,
 		"listen_port", cfg.ListenPort,
+		"target", cfg.Target,
 	)
 
-	client := ltosapi.NewClient(cfg.LTOSAPIURL, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
+	client := ltosapi.NewClient(cfg.Target, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
 
 	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
@@ -168,7 +169,7 @@ func main() {
 	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from %s.</p>
 </body>
 </html>
-		`, cfg.LTOSAPIURL); err != nil {
+		`, cfg.Target); err != nil {
 				logger.Error("Failed to write response", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
