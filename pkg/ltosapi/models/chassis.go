@@ -41,9 +41,9 @@ type SlotModuleInfo struct {
 }
 
 type SyncStatus struct {
-	OscillatorType string      `json:"osc-type"`
-	TimeQuality    TimeQuality `json:"est-time-quality"`
-	ClockStatus    ClockStatus `json:"clock-status"`
+	OscillatorType string       `json:"osc-type"`
+	TimeQuality    *TimeQuality `json:"est-time-quality"`
+	ClockStatus    ClockStatus  `json:"clock-status"`
 }
 
 type TimeQuality time.Duration
@@ -62,6 +62,7 @@ func (t *TimeQuality) UnmarshalJSON(data []byte) error {
 
 	d, err := time.ParseDuration(trimmed)
 	if err != nil {
+		// Unparseable time quality is treated as unknown; omit the metric rather than error.
 		return nil
 	}
 
