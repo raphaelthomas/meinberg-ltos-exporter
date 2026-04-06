@@ -166,6 +166,14 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle(cfg.MetricsPath, promhttp.Handler())
 
+	landingPageData := struct {
+		Target      string
+		MetricsPath string
+	}{
+		Target:      cfg.Target,
+		MetricsPath: cfg.MetricsPath,
+	}
+
 	landingPageTmpl := template.Must(template.New("landingPage").Parse(`
 <!DOCTYPE html>
 <html>
@@ -175,7 +183,7 @@ func main() {
 <body>
   <h1>Meinberg LTOS Exporter</h1>
   <p>Prometheus exporter for Meinberg LTOS devices.</p>
-	<p>Check <a href="/metrics">/metrics</a> for the Prometheus metrics in text exposition format scraped from {{.}}.</p>
+	<p>Check <a href="{{.MetricsPath}}">{{.MetricsPath}}</a> for the Prometheus metrics in text exposition format scraped from {{.Target}}.</p>
 </body>
 </html>
 `))
@@ -183,7 +191,7 @@ func main() {
 	if cfg.MetricsPath != "/" && cfg.MetricsPath != "" {
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			if err := landingPageTmpl.Execute(w, cfg.Target); err != nil {
+			if err := landingPageTmpl.Execute(w, landingPageData); err != nil {
 				logger.Error("Failed to write response", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
