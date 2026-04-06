@@ -62,8 +62,7 @@ func (t *TimeQuality) UnmarshalJSON(data []byte) error {
 
 	d, err := time.ParseDuration(trimmed)
 	if err != nil {
-		// Unparseable time quality is treated as unknown; omit the metric rather than error.
-		return nil
+		return fmt.Errorf("failed to parse time quality %q: %w", raw, err)
 	}
 
 	*t = TimeQuality(d)
