@@ -159,10 +159,11 @@ func main() {
 	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
 
-	http.Handle(cfg.MetricsPath, promhttp.Handler())
+	mux := http.NewServeMux()
+	mux.Handle(cfg.MetricsPath, promhttp.Handler())
 
 	if cfg.MetricsPath != "/" && cfg.MetricsPath != "" {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			if _, err := fmt.Fprintf(w, `
 <!DOCTYPE html>
@@ -187,7 +188,7 @@ func main() {
 	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
 	logger.Info("HTTP server listening", "address", listenAddr)
 
-	if err := http.ListenAndServe(listenAddr, nil); err != nil {
+	if err := http.ListenAndServe(listenAddr, mux); err != nil {
 		logger.Error("HTTP server error", "error", err)
 		os.Exit(1)
 	}
