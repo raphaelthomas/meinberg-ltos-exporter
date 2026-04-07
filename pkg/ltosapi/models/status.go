@@ -16,6 +16,7 @@ type StatusData struct {
 	RestAPI      RestAPI          `json:"rest-api"`
 	System       System           `json:"system"`
 	Notification Notification     `json:"notification"`
+	Network      Network          `json:"network"`
 	Chassis      Chassis          `json:"chassis0"`
 	NTP          []NTPAssociation `json:"ntp"`
 }

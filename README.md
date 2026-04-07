@@ -67,6 +67,7 @@ Flags:
       --[no-]collector.system    Enable system collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_SYSTEM)
       --[no-]collector.notification
                                  Enable notification collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_NOTIFICATION)
+      --[no-]collector.network   Enable network collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_NETWORK)
       --[no-]collector.storage   Enable storage collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_STORAGE)
       --[no-]collector.clock     Enable clock collector. ($MEINBERG_LTOS_EXPORTER_COLLECTOR_CLOCK)
       --[no-]collector.receiver  Enable receiver collectors (GNSS + DCF77). ($MEINBERG_LTOS_EXPORTER_COLLECTOR_RECEIVER)

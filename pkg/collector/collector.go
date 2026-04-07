@@ -36,6 +36,7 @@ type Config struct {
 	Timeout      time.Duration
 	System       bool
 	Notification bool
+	Network      bool
 	Storage      bool
 	Clock        bool
 	Receiver     bool
@@ -58,6 +59,9 @@ func NewCollector(config Config, client *ltosapi.Client, logger *slog.Logger) *C
 	}
 	if !config.Notification {
 		logger.Info("Collector disabled", "collector", "notification")
+	}
+	if !config.Network {
+		logger.Info("Collector disabled", "collector", "network")
 	}
 	if !config.Storage {
 		logger.Info("Collector disabled", "collector", "storage")
@@ -117,6 +121,9 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	if c.config.Notification {
 		describeNotification(ch)
 	}
+	if c.config.Network {
+		describeNetwork(ch)
+	}
 	if c.config.Storage {
 		describeStorage(ch)
 	}
@@ -164,6 +171,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	}
 	if c.config.Notification {
 		c.collectNotification(ch, host, status.Data.Notification.Events)
+	}
+	if c.config.Network {
+		c.collectNetwork(ch, host, status.Data.Network)
 	}
 	if c.config.Storage {
 		c.collectStorage(ch, host, status.Data.System.Mounts)

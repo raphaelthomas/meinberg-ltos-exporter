@@ -109,6 +109,11 @@ func parseFlags() *Config {
 		Envar(envPrefix + "COLLECTOR_NOTIFICATION").
 		BoolVar(&cfg.Collector.Notification)
 
+	app.Flag("collector.network", "Enable network collector.").
+		Default("true").
+		Envar(envPrefix + "COLLECTOR_NETWORK").
+		BoolVar(&cfg.Collector.Network)
+
 	app.Flag("collector.storage", "Enable storage collector.").
 		Default("true").
 		Envar(envPrefix + "COLLECTOR_STORAGE").
