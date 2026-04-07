@@ -9,7 +9,7 @@ build:
 	go build -o meinberg_ltos_exporter .
 
 run: build
-	./meinberg_ltos_exporter --target https://localhost:8080 --ignore-ssl-verify $(if $(AUTH_USER),--auth-user $(AUTH_USER)) $(if $(AUTH_PASS),--auth-pass $(AUTH_PASS))
+	./meinberg_ltos_exporter --target https://localhost:8080 --web.listen-address localhost:10123 --ignore-ssl-verify $(if $(AUTH_USER),--auth-user $(AUTH_USER)) $(if $(AUTH_PASS),--auth-pass $(AUTH_PASS))
 
 test-certs:
 	 openssl req -x509 -newkey rsa:4096 -keyout tests/mock-key.pem -out tests/mock-cert.pem -sha256 -days 5 -nodes -subj "/C=CH/ST=State/L=City/O=Organization/OU=Department/CN=localhost"

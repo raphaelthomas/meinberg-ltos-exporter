@@ -16,13 +16,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -36,8 +34,7 @@ import (
 
 // Config holds the exporter configuration
 type Config struct {
-	ListenAddr      string
-	ListenPort      string
+	ListenAddress   string
 	MetricsPath     string
 	Target          string
 	LogLevel        slog.Level
@@ -57,15 +54,10 @@ func parseFlags() *Config {
 
 	const envPrefix = "MEINBERG_LTOS_EXPORTER_"
 
-	app.Flag("web.listen-address", "Address to listen on").
-		Default("localhost").
-		Envar(envPrefix + "LISTEN_ADDR").
-		StringVar(&cfg.ListenAddr)
-
-	app.Flag("web.listen-port", "Port to listen on").
-		Default("10123").
-		Envar(envPrefix + "LISTEN_PORT").
-		StringVar(&cfg.ListenPort)
+	app.Flag("web.listen-address", "Address to listen on for web interface and telemetry").
+		Default(":10123").
+		Envar(envPrefix + "LISTEN_ADDRESS").
+		StringVar(&cfg.ListenAddress)
 
 	app.Flag("web.telemetry-path", "Path under which to expose metrics").
 		Default("/metrics").
@@ -136,12 +128,6 @@ func parseFlags() *Config {
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	port, err := strconv.Atoi(cfg.ListenPort)
-	if err != nil || port < 1 || port > 65535 {
-		fmt.Fprintf(os.Stderr, "error: invalid listen port %q: must be between 1 and 65535\n", cfg.ListenPort)
-		os.Exit(1)
-	}
-
 	if err := cfg.LogLevel.UnmarshalText([]byte(*logLevelFlag)); err != nil {
 		cfg.LogLevel = slog.LevelInfo
 	}
@@ -158,8 +144,7 @@ func main() {
 
 	logger.Info("Starting Meinberg LTOS Exporter",
 		"version", buildinfo.Version,
-		"listen_addr", cfg.ListenAddr,
-		"listen_port", cfg.ListenPort,
+		"listen_address", cfg.ListenAddress,
 		"target", cfg.Target,
 	)
 
@@ -204,8 +189,7 @@ func main() {
 		})
 	}
 
-	listenAddr := fmt.Sprintf("%s:%s", cfg.ListenAddr, cfg.ListenPort)
-	srv := &http.Server{Addr: listenAddr, Handler: mux}
+	srv := &http.Server{Addr: cfg.ListenAddress, Handler: mux}
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)
@@ -217,7 +201,7 @@ func main() {
 		}
 	}()
 
-	logger.Info("HTTP server listening", "address", listenAddr)
+	logger.Info("HTTP server listening", "address", cfg.ListenAddress)
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("HTTP server error", "error", err)

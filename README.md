@@ -36,7 +36,6 @@ docker run --rm -p 10123:10123 \
   -e MEINBERG_LTOS_EXPORTER_TARGET=https://<device> \
   -e MEINBERG_LTOS_EXPORTER_AUTH_USER=<user> \
   -e MEINBERG_LTOS_EXPORTER_AUTH_PASS=<password> \
-  -e MEINBERG_LTOS_EXPORTER_LISTEN_ADDR=0.0.0.0 \
   ghcr.io/raphaelthomas/meinberg_ltos_exporter:latest
 ```
 
@@ -53,9 +52,8 @@ Prometheus exporter for Meinberg LTOS devices
 Flags:
   -h, --[no-]help                Show context-sensitive help (also try --help-long and --help-man).
       --[no-]version             Show application version.
-      --web.listen-address="localhost"
-                                 Address to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_ADDR)
-      --web.listen-port="10123"  Port to listen on ($MEINBERG_LTOS_EXPORTER_LISTEN_PORT)
+      --web.listen-address=":10123"
+                                 Address to listen on for web interface and telemetry ($MEINBERG_LTOS_EXPORTER_LISTEN_ADDRESS)
       --web.telemetry-path="/metrics"
                                  Path under which to expose metrics ($MEINBERG_LTOS_EXPORTER_METRICS_PATH)
       --target=TARGET            Base URL of the Meinberg LTOS device (e.g. https://clock.example.com) ($MEINBERG_LTOS_EXPORTER_TARGET)
