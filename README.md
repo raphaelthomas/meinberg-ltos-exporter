@@ -97,6 +97,19 @@ goreleaser build --snapshot --clean
 
 ## Local Development
 
+### Adding new test data files
+
+1. Save the API JSON response in `tests/testdata/` using a descriptive name (e.g. `m600-gps.json`).
+1. Generate and validate the expected metrics output using the following:
+
+   ```
+   UPDATE_GOLDEN=1 make test
+   ```
+
+1. Open a PR with the new test data file and the updated golden file. CI will validate the new test data and metrics output.
+
+### Running with Mock API
+
 Run the following in three separate terminal windows:
 
 1. A mock LTOS API serving static test data. Supply a file from
