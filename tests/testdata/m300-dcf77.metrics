@@ -1,0 +1,169 @@
+# HELP meinberg_ltos_build_info Meinberg device build information as labels (e.g., API version, firmware version, host)
+# TYPE meinberg_ltos_build_info gauge
+meinberg_ltos_build_info{api_version="10.21.016",firmware_version="fw_7.06.014-light",host="mbg2.time.example.com",target="http://localhost"} 1
+
+# HELP meinberg_ltos_clock_estimated_time_quality_seconds Estimated upper bound in seconds on the time quality of the clock
+# TYPE meinberg_ltos_clock_estimated_time_quality_seconds gauge
+meinberg_ltos_clock_estimated_time_quality_seconds{clock_id="clk1",host="mbg2.time.example.com"} 1e-07
+
+# HELP meinberg_ltos_clock_info Meinberg clock module information as labels (model, serial number, software revision, oscillator type)
+# TYPE meinberg_ltos_clock_info gauge
+meinberg_ltos_clock_info{clock_id="clk1",host="mbg2.time.example.com",model="pzf511",oscillator_type="tcxo",serial_number="001122334455",software_revision="v2.08"} 1
+
+# HELP meinberg_ltos_clock_oscillator_warmed_up Meinberg clock oscillator warmed up status (1 = warmed up, 0 = not warmed up)
+# TYPE meinberg_ltos_clock_oscillator_warmed_up gauge
+meinberg_ltos_clock_oscillator_warmed_up{clock_id="clk1",host="mbg2.time.example.com"} 1
+
+# HELP meinberg_ltos_clock_receiver_dcf77_correlation DCF77 receiver correlation
+# TYPE meinberg_ltos_clock_receiver_dcf77_correlation gauge
+meinberg_ltos_clock_receiver_dcf77_correlation{clock_id="clk1",host="mbg2.time.example.com"} 56
+
+# HELP meinberg_ltos_clock_receiver_dcf77_field_strength DCF77 receiver field strength
+# TYPE meinberg_ltos_clock_receiver_dcf77_field_strength gauge
+meinberg_ltos_clock_receiver_dcf77_field_strength{clock_id="clk1",host="mbg2.time.example.com"} 40
+
+# HELP meinberg_ltos_clock_synchronized Meinberg clock synchronization status (1 = synchronized, 0 = not synchronized)
+# TYPE meinberg_ltos_clock_synchronized gauge
+meinberg_ltos_clock_synchronized{clock_id="clk1",host="mbg2.time.example.com"} 1
+
+# HELP meinberg_ltos_network_port_info Network port information as labels
+# TYPE meinberg_ltos_network_port_info gauge
+meinberg_ltos_network_port_info{card_name="c05f1-v31",duplex="full",host="mbg2.time.example.com",mac_address="00:13:95:03:66:aa",port="lan0",speed="100"} 1
+
+# HELP meinberg_ltos_network_port_up Network port link status (1 = up, 0 = down)
+# TYPE meinberg_ltos_network_port_up gauge
+meinberg_ltos_network_port_up{host="mbg2.time.example.com",port="lan0"} 1
+meinberg_ltos_network_port_up{host="mbg2.time.example.com",port="lan1"} 0
+
+# HELP meinberg_ltos_notification_last_triggered_seconds When an event last occurred as seconds since UNIX epoch (0 if never triggered)
+# TYPE meinberg_ltos_notification_last_triggered_seconds gauge
+meinberg_ltos_notification_last_triggered_seconds{event="antenna-faulty",host="mbg2.time.example.com",type="error"} 1.773643743e+09
+meinberg_ltos_notification_last_triggered_seconds{event="antenna-reconnect",host="mbg2.time.example.com",type="info"} 1.773643747e+09
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-falseticker-cleared",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-falseticker-detected",host="mbg2.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-master-changed",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="device-configuration-changed",host="mbg2.time.example.com",type="action"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="faillock:-user-banned",host="mbg2.time.example.com",type="action"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="https-certificate-expire-warning",host="mbg2.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="https-certificate-expired",host="mbg2.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="leap-second-announced",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="low-system-resources",host="mbg2.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="network-link-down",host="mbg2.time.example.com",type="error"} 1.774137048e+09
+meinberg_ltos_notification_last_triggered_seconds{event="network-link-up",host="mbg2.time.example.com",type="info"} 1.774137061e+09
+meinberg_ltos_notification_last_triggered_seconds{event="normal-operation",host="mbg2.time.example.com",type="info"} 1.773250455e+09
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-not-sync",host="mbg2.time.example.com",type="error"} 1.77421094e+09
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-offset-limit-exceeded",host="mbg2.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-offset-limit-ok",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-stopped",host="mbg2.time.example.com",type="critical"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-sync",host="mbg2.time.example.com",type="info"} 1.774210981e+09
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-not-responding",host="mbg2.time.example.com",type="critical"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-not-sync",host="mbg2.time.example.com",type="error"} 1.774173298e+09
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-sync",host="mbg2.time.example.com",type="info"} 1.774173422e+09
+meinberg_ltos_notification_last_triggered_seconds{event="self-signed-https-certificate-in-use",host="mbg2.time.example.com",type="warning"} 1.773250424e+09
+meinberg_ltos_notification_last_triggered_seconds{event="sufficient-system-resources",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor",host="mbg2.time.example.com",type="action"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor-alert",host="mbg2.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor-ok",host="mbg2.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="system-reboot",host="mbg2.time.example.com",type="action"} 1.773250417e+09
+
+# HELP meinberg_ltos_ntp_peer_delay_seconds Meinberg NTP peer delay in seconds
+# TYPE meinberg_ltos_ntp_peer_delay_seconds gauge
+meinberg_ltos_ntp_peer_delay_seconds{host="mbg2.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="PZF"} 0
+
+# HELP meinberg_ltos_ntp_peer_dispersion_seconds Meinberg NTP peer dispersion in seconds
+# TYPE meinberg_ltos_ntp_peer_dispersion_seconds gauge
+meinberg_ltos_ntp_peer_dispersion_seconds{host="mbg2.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="PZF"} 0.00011999999999999999
+
+# HELP meinberg_ltos_ntp_peer_leap_indicator Meinberg NTP peer leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)
+# TYPE meinberg_ltos_ntp_peer_leap_indicator gauge
+meinberg_ltos_ntp_peer_leap_indicator{host="mbg2.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="PZF"} 0
+
+# HELP meinberg_ltos_ntp_peer_offset_seconds Meinberg NTP peer offset in seconds
+# TYPE meinberg_ltos_ntp_peer_offset_seconds gauge
+meinberg_ltos_ntp_peer_offset_seconds{host="mbg2.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="PZF"} -4e-06
+
+# HELP meinberg_ltos_ntp_peer_synchronized Meinberg NTP peer synchronized state (1 if synchronized, 0 otherwise)
+# TYPE meinberg_ltos_ntp_peer_synchronized gauge
+meinberg_ltos_ntp_peer_synchronized{host="mbg2.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="PZF"} 1
+
+# HELP meinberg_ltos_ntp_sys_clock_jitter_seconds Meinberg NTP clock jitter in seconds
+# TYPE meinberg_ltos_ntp_sys_clock_jitter_seconds gauge
+meinberg_ltos_ntp_sys_clock_jitter_seconds{host="mbg2.time.example.com",refid="PZF"} 6e-06
+
+# HELP meinberg_ltos_ntp_sys_clock_wander_seconds_per_second Meinberg NTP clock wander in seconds per second
+# TYPE meinberg_ltos_ntp_sys_clock_wander_seconds_per_second gauge
+meinberg_ltos_ntp_sys_clock_wander_seconds_per_second{host="mbg2.time.example.com",refid="PZF"} 5e-06
+
+# HELP meinberg_ltos_ntp_sys_leap_indicator Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)
+# TYPE meinberg_ltos_ntp_sys_leap_indicator gauge
+meinberg_ltos_ntp_sys_leap_indicator{host="mbg2.time.example.com",refid="PZF"} 0
+
+# HELP meinberg_ltos_ntp_sys_leap_second_timestamp_seconds Meinberg NTP leap second (last or next) in seconds since UNIX epoch
+# TYPE meinberg_ltos_ntp_sys_leap_second_timestamp_seconds gauge
+meinberg_ltos_ntp_sys_leap_second_timestamp_seconds{host="mbg2.time.example.com",refid="PZF"} 1.4832288e+09
+
+# HELP meinberg_ltos_ntp_sys_precision_seconds Meinberg NTP precision in seconds
+# TYPE meinberg_ltos_ntp_sys_precision_seconds gauge
+meinberg_ltos_ntp_sys_precision_seconds{host="mbg2.time.example.com",refid="PZF"} 3.814697265625e-06
+
+# HELP meinberg_ltos_ntp_sys_root_delay_seconds Meinberg NTP root delay in seconds
+# TYPE meinberg_ltos_ntp_sys_root_delay_seconds gauge
+meinberg_ltos_ntp_sys_root_delay_seconds{host="mbg2.time.example.com",refid="PZF"} 0
+
+# HELP meinberg_ltos_ntp_sys_root_dispersion_seconds Meinberg NTP root dispersion in seconds
+# TYPE meinberg_ltos_ntp_sys_root_dispersion_seconds gauge
+meinberg_ltos_ntp_sys_root_dispersion_seconds{host="mbg2.time.example.com",refid="PZF"} 0.00015
+
+# HELP meinberg_ltos_ntp_sys_stratum Meinberg NTP stratum level
+# TYPE meinberg_ltos_ntp_sys_stratum gauge
+meinberg_ltos_ntp_sys_stratum{host="mbg2.time.example.com",refid="PZF"} 1
+
+# HELP meinberg_ltos_scrape_duration_seconds Duration of the scrape of the Meinberg LTOS device in seconds
+# TYPE meinberg_ltos_scrape_duration_seconds gauge
+meinberg_ltos_scrape_duration_seconds{target="http://localhost"} 0
+
+# HELP meinberg_ltos_storage_total_bytes Total size of the storage volume in bytes
+# TYPE meinberg_ltos_storage_total_bytes gauge
+meinberg_ltos_storage_total_bytes{host="mbg2.time.example.com",mount="/"} 4.6559232e+07
+meinberg_ltos_storage_total_bytes{host="mbg2.time.example.com",mount="/data"} 3.6758528e+07
+meinberg_ltos_storage_total_bytes{host="mbg2.time.example.com",mount="/mnt/flash"} 4.00334848e+08
+meinberg_ltos_storage_total_bytes{host="mbg2.time.example.com",mount="/var"} 1.6777216e+07
+meinberg_ltos_storage_total_bytes{host="mbg2.time.example.com",mount="/www"} 8.388608e+06
+
+# HELP meinberg_ltos_storage_used_bytes Used bytes of the storage volume
+# TYPE meinberg_ltos_storage_used_bytes gauge
+meinberg_ltos_storage_used_bytes{host="mbg2.time.example.com",mount="/"} 3.0920704e+07
+meinberg_ltos_storage_used_bytes{host="mbg2.time.example.com",mount="/data"} 532480
+meinberg_ltos_storage_used_bytes{host="mbg2.time.example.com",mount="/mnt/flash"} 3.49249536e+08
+meinberg_ltos_storage_used_bytes{host="mbg2.time.example.com",mount="/var"} 4.44416e+06
+meinberg_ltos_storage_used_bytes{host="mbg2.time.example.com",mount="/www"} 2.973696e+06
+
+# HELP meinberg_ltos_system_cpu_info CPU information as labels (model, serial, etc.)
+# TYPE meinberg_ltos_system_cpu_info gauge
+meinberg_ltos_system_cpu_info{host="mbg2.time.example.com",model="c05f1-v31",serial_number=""} 1
+
+# HELP meinberg_ltos_system_cpu_load_avg CPU load averaged over 1, 5, and 15 minutes
+# TYPE meinberg_ltos_system_cpu_load_avg gauge
+meinberg_ltos_system_cpu_load_avg{host="mbg2.time.example.com",period="1"} 0.26
+meinberg_ltos_system_cpu_load_avg{host="mbg2.time.example.com",period="15"} 0.29
+meinberg_ltos_system_cpu_load_avg{host="mbg2.time.example.com",period="5"} 0.33
+
+# HELP meinberg_ltos_system_info Meinberg system information as labels (e.g., model, serial number, host)
+# TYPE meinberg_ltos_system_info gauge
+meinberg_ltos_system_info{host="mbg2.time.example.com",model="M300",serial_number="0123456789"} 1
+
+# HELP meinberg_ltos_system_memory_bytes Total memory in bytes
+# TYPE meinberg_ltos_system_memory_bytes gauge
+meinberg_ltos_system_memory_bytes{host="mbg2.time.example.com"} 1.01429248e+08
+
+# HELP meinberg_ltos_system_memory_free_bytes Free memory in bytes
+# TYPE meinberg_ltos_system_memory_free_bytes gauge
+meinberg_ltos_system_memory_free_bytes{host="mbg2.time.example.com"} 5.8179584e+07
+
+# HELP meinberg_ltos_system_uptime_seconds System uptime in seconds
+# TYPE meinberg_ltos_system_uptime_seconds gauge
+meinberg_ltos_system_uptime_seconds{host="mbg2.time.example.com"} 960935.94
+
+# HELP meinberg_ltos_up Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)
+# TYPE meinberg_ltos_up gauge
+meinberg_ltos_up{target="http://localhost"} 1

@@ -1,0 +1,251 @@
+# HELP meinberg_ltos_build_info Meinberg device build information as labels (e.g., API version, firmware version, host)
+# TYPE meinberg_ltos_build_info gauge
+meinberg_ltos_build_info{api_version="20.05.013",firmware_version="fw_7.10.008",host="mbg1.time.example.com",target="http://localhost"} 1
+
+# HELP meinberg_ltos_clock_estimated_time_quality_seconds Estimated upper bound in seconds on the time quality of the clock
+# TYPE meinberg_ltos_clock_estimated_time_quality_seconds gauge
+meinberg_ltos_clock_estimated_time_quality_seconds{clock_id="clk1",host="mbg1.time.example.com"} 1e-07
+
+# HELP meinberg_ltos_clock_info Meinberg clock module information as labels (model, serial number, software revision, oscillator type)
+# TYPE meinberg_ltos_clock_info gauge
+meinberg_ltos_clock_info{clock_id="clk1",host="mbg1.time.example.com",model="grc180",oscillator_type="ocxo-lq",serial_number="029811038330",software_revision="v2.16"} 1
+
+# HELP meinberg_ltos_clock_oscillator_warmed_up Meinberg clock oscillator warmed up status (1 = warmed up, 0 = not warmed up)
+# TYPE meinberg_ltos_clock_oscillator_warmed_up gauge
+meinberg_ltos_clock_oscillator_warmed_up{clock_id="clk1",host="mbg1.time.example.com"} 1
+
+# HELP meinberg_ltos_clock_receiver_gnss_altitude_meters Meinberg GNSS receiver altitude
+# TYPE meinberg_ltos_clock_receiver_gnss_altitude_meters gauge
+meinberg_ltos_clock_receiver_gnss_altitude_meters{clock_id="clk1",host="mbg1.time.example.com"} 555.5
+
+# HELP meinberg_ltos_clock_receiver_gnss_antenna_connected Meinberg GNSS receiver antenna connected (1 = connected, 0 = not connected)
+# TYPE meinberg_ltos_clock_receiver_gnss_antenna_connected gauge
+meinberg_ltos_clock_receiver_gnss_antenna_connected{clock_id="clk1",host="mbg1.time.example.com"} 1
+
+# HELP meinberg_ltos_clock_receiver_gnss_antenna_short_circuit Meinberg GNSS receiver antenna short circuit detected (1 = short circuit, 0 = no short circuit)
+# TYPE meinberg_ltos_clock_receiver_gnss_antenna_short_circuit gauge
+meinberg_ltos_clock_receiver_gnss_antenna_short_circuit{clock_id="clk1",host="mbg1.time.example.com"} 0
+
+# HELP meinberg_ltos_clock_receiver_gnss_cold_boot GNSS receiver cold boot status (1 = cold boot, 0 = not cold boot)
+# TYPE meinberg_ltos_clock_receiver_gnss_cold_boot gauge
+meinberg_ltos_clock_receiver_gnss_cold_boot{clock_id="clk1",host="mbg1.time.example.com"} 0
+
+# HELP meinberg_ltos_clock_receiver_gnss_latitude_degrees Meinberg GNSS receiver latitude
+# TYPE meinberg_ltos_clock_receiver_gnss_latitude_degrees gauge
+meinberg_ltos_clock_receiver_gnss_latitude_degrees{clock_id="clk1",host="mbg1.time.example.com"} 46.951083
+
+# HELP meinberg_ltos_clock_receiver_gnss_longitude_degrees Meinberg GNSS receiver longitude
+# TYPE meinberg_ltos_clock_receiver_gnss_longitude_degrees gauge
+meinberg_ltos_clock_receiver_gnss_longitude_degrees{clock_id="clk1",host="mbg1.time.example.com"} 7.438632
+
+# HELP meinberg_ltos_clock_receiver_gnss_satellites_good Number of good satellites for the GNSS receiver
+# TYPE meinberg_ltos_clock_receiver_gnss_satellites_good gauge
+meinberg_ltos_clock_receiver_gnss_satellites_good{clock_id="clk1",host="mbg1.time.example.com"} 9
+
+# HELP meinberg_ltos_clock_receiver_gnss_satellites_in_view Number of satellites (theoretically) in view of the GNSS receiver
+# TYPE meinberg_ltos_clock_receiver_gnss_satellites_in_view gauge
+meinberg_ltos_clock_receiver_gnss_satellites_in_view{clock_id="clk1",host="mbg1.time.example.com"} 14
+
+# HELP meinberg_ltos_clock_receiver_gnss_synchronized Meinberg GNSS receiver synchronization status (1 = synced, 0 = not synced)
+# TYPE meinberg_ltos_clock_receiver_gnss_synchronized gauge
+meinberg_ltos_clock_receiver_gnss_synchronized{clock_id="clk1",host="mbg1.time.example.com"} 1
+
+# HELP meinberg_ltos_clock_receiver_gnss_tracking Meinberg GNSS receiver tracking status (1 = tracking, 0 = not tracking)
+# TYPE meinberg_ltos_clock_receiver_gnss_tracking gauge
+meinberg_ltos_clock_receiver_gnss_tracking{clock_id="clk1",host="mbg1.time.example.com"} 0
+
+# HELP meinberg_ltos_clock_receiver_gnss_warm_boot GNSS receiver warm boot status (1 = warm boot, 0 = not warm boot)
+# TYPE meinberg_ltos_clock_receiver_gnss_warm_boot gauge
+meinberg_ltos_clock_receiver_gnss_warm_boot{clock_id="clk1",host="mbg1.time.example.com"} 0
+
+# HELP meinberg_ltos_clock_synchronized Meinberg clock synchronization status (1 = synchronized, 0 = not synchronized)
+# TYPE meinberg_ltos_clock_synchronized gauge
+meinberg_ltos_clock_synchronized{clock_id="clk1",host="mbg1.time.example.com"} 1
+
+# HELP meinberg_ltos_network_port_info Network port information as labels
+# TYPE meinberg_ltos_network_port_info gauge
+meinberg_ltos_network_port_info{card_name="c05f1-v33",duplex="full",host="mbg1.time.example.com",mac_address="00:13:95:16:7c:9c",port="lan0",speed="100"} 1
+
+# HELP meinberg_ltos_network_port_rx_bytes_total Total bytes received on the network port
+# TYPE meinberg_ltos_network_port_rx_bytes_total counter
+meinberg_ltos_network_port_rx_bytes_total{host="mbg1.time.example.com",port="lan0"} 5.5105245e+07
+
+# HELP meinberg_ltos_network_port_rx_dropped_total Total received packets dropped on the network port
+# TYPE meinberg_ltos_network_port_rx_dropped_total counter
+meinberg_ltos_network_port_rx_dropped_total{host="mbg1.time.example.com",port="lan0"} 0
+
+# HELP meinberg_ltos_network_port_rx_errors_total Total receive errors on the network port
+# TYPE meinberg_ltos_network_port_rx_errors_total counter
+meinberg_ltos_network_port_rx_errors_total{host="mbg1.time.example.com",port="lan0"} 0
+
+# HELP meinberg_ltos_network_port_rx_packets_total Total packets received on the network port
+# TYPE meinberg_ltos_network_port_rx_packets_total counter
+meinberg_ltos_network_port_rx_packets_total{host="mbg1.time.example.com",port="lan0"} 792578
+
+# HELP meinberg_ltos_network_port_tx_bytes_total Total bytes transmitted on the network port
+# TYPE meinberg_ltos_network_port_tx_bytes_total counter
+meinberg_ltos_network_port_tx_bytes_total{host="mbg1.time.example.com",port="lan0"} 1.0958227e+08
+
+# HELP meinberg_ltos_network_port_tx_dropped_total Total transmitted packets dropped on the network port
+# TYPE meinberg_ltos_network_port_tx_dropped_total counter
+meinberg_ltos_network_port_tx_dropped_total{host="mbg1.time.example.com",port="lan0"} 0
+
+# HELP meinberg_ltos_network_port_tx_errors_total Total transmit errors on the network port
+# TYPE meinberg_ltos_network_port_tx_errors_total counter
+meinberg_ltos_network_port_tx_errors_total{host="mbg1.time.example.com",port="lan0"} 0
+
+# HELP meinberg_ltos_network_port_tx_packets_total Total packets transmitted on the network port
+# TYPE meinberg_ltos_network_port_tx_packets_total counter
+meinberg_ltos_network_port_tx_packets_total{host="mbg1.time.example.com",port="lan0"} 257815
+
+# HELP meinberg_ltos_network_port_up Network port link status (1 = up, 0 = down)
+# TYPE meinberg_ltos_network_port_up gauge
+meinberg_ltos_network_port_up{host="mbg1.time.example.com",port="lan0"} 1
+meinberg_ltos_network_port_up{host="mbg1.time.example.com",port="lan1"} 0
+meinberg_ltos_network_port_up{host="mbg1.time.example.com",port="lan2"} 0
+meinberg_ltos_network_port_up{host="mbg1.time.example.com",port="lan3"} 0
+
+# HELP meinberg_ltos_notification_last_triggered_seconds When an event last occurred as seconds since UNIX epoch (0 if never triggered)
+# TYPE meinberg_ltos_notification_last_triggered_seconds gauge
+meinberg_ltos_notification_last_triggered_seconds{event="antenna-faulty",host="mbg1.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="antenna-reconnect",host="mbg1.time.example.com",type="info"} 1.770716661e+09
+meinberg_ltos_notification_last_triggered_seconds{event="antenna-short-circuit",host="mbg1.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="auto-update-avail",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="auto-update-failed",host="mbg1.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="auto-update-installed",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-falseticker-cleared",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-falseticker-detected",host="mbg1.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="cluster-master-changed",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="device-configuration-changed",host="mbg1.time.example.com",type="action"} 1.770846785e+09
+meinberg_ltos_notification_last_triggered_seconds{event="faillock-user-banned",host="mbg1.time.example.com",type="action"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="https-certificate-expire-warning",host="mbg1.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="https-certificate-expired",host="mbg1.time.example.com",type="error"} 1.770846788e+09
+meinberg_ltos_notification_last_triggered_seconds{event="leapsecond-announced",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="low-system-resources",host="mbg1.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="network-link-down",host="mbg1.time.example.com",type="error"} 1.770716628e+09
+meinberg_ltos_notification_last_triggered_seconds{event="network-link-up",host="mbg1.time.example.com",type="info"} 1.770716628e+09
+meinberg_ltos_notification_last_triggered_seconds{event="normal-operation",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-not-sync",host="mbg1.time.example.com",type="error"} 1.770716748e+09
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-offset-limit-exceeded",host="mbg1.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-offset-limit-ok",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-stopped",host="mbg1.time.example.com",type="critical"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="ntp-sync",host="mbg1.time.example.com",type="info"} 1.770731372e+09
+meinberg_ltos_notification_last_triggered_seconds{event="oscillator-adjusted",host="mbg1.time.example.com",type="info"} 1.770716758e+09
+meinberg_ltos_notification_last_triggered_seconds{event="oscillator-not-adjusted",host="mbg1.time.example.com",type="warning"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-not-responding",host="mbg1.time.example.com",type="critical"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-not-sync",host="mbg1.time.example.com",type="error"} 1.770796106e+09
+meinberg_ltos_notification_last_triggered_seconds{event="refclock-1-sync",host="mbg1.time.example.com",type="info"} 1.770796128e+09
+meinberg_ltos_notification_last_triggered_seconds{event="self-signed-https-certificate-in-use",host="mbg1.time.example.com",type="warning"} 1.770716697e+09
+meinberg_ltos_notification_last_triggered_seconds{event="sufficient-system-resources",host="mbg1.time.example.com",type="info"} 1.770717003e+09
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor",host="mbg1.time.example.com",type="action"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor-alert",host="mbg1.time.example.com",type="error"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="sync-monitor-ok",host="mbg1.time.example.com",type="info"} 0
+meinberg_ltos_notification_last_triggered_seconds{event="system-reboot",host="mbg1.time.example.com",type="action"} 1.770716659e+09
+
+# HELP meinberg_ltos_ntp_peer_delay_seconds Meinberg NTP peer delay in seconds
+# TYPE meinberg_ltos_ntp_peer_delay_seconds gauge
+meinberg_ltos_ntp_peer_delay_seconds{host="mbg1.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_peer_dispersion_seconds Meinberg NTP peer dispersion in seconds
+# TYPE meinberg_ltos_ntp_peer_dispersion_seconds gauge
+meinberg_ltos_ntp_peer_dispersion_seconds{host="mbg1.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="GPS"} 0.00012
+
+# HELP meinberg_ltos_ntp_peer_leap_indicator Meinberg NTP peer leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)
+# TYPE meinberg_ltos_ntp_peer_leap_indicator gauge
+meinberg_ltos_ntp_peer_leap_indicator{host="mbg1.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_peer_offset_seconds Meinberg NTP peer offset in seconds
+# TYPE meinberg_ltos_ntp_peer_offset_seconds gauge
+meinberg_ltos_ntp_peer_offset_seconds{host="mbg1.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_peer_synchronized Meinberg NTP peer synchronized state (1 if synchronized, 0 otherwise)
+# TYPE meinberg_ltos_ntp_peer_synchronized gauge
+meinberg_ltos_ntp_peer_synchronized{host="mbg1.time.example.com",peer_address="127.127.8.0",peer_name="ref_1",refid="GPS"} 1
+
+# HELP meinberg_ltos_ntp_sys_clock_jitter_seconds Meinberg NTP clock jitter in seconds
+# TYPE meinberg_ltos_ntp_sys_clock_jitter_seconds gauge
+meinberg_ltos_ntp_sys_clock_jitter_seconds{host="mbg1.time.example.com",refid="GPS"} 4e-06
+
+# HELP meinberg_ltos_ntp_sys_clock_wander_seconds_per_second Meinberg NTP clock wander in seconds per second
+# TYPE meinberg_ltos_ntp_sys_clock_wander_seconds_per_second gauge
+meinberg_ltos_ntp_sys_clock_wander_seconds_per_second{host="mbg1.time.example.com",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_sys_leap_indicator Meinberg NTP leap indicator (0 = no warning, 1 = last minute has 61 seconds, 2 = last minute has 59 seconds, 3 = unknown)
+# TYPE meinberg_ltos_ntp_sys_leap_indicator gauge
+meinberg_ltos_ntp_sys_leap_indicator{host="mbg1.time.example.com",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_sys_leap_second_timestamp_seconds Meinberg NTP leap second (last or next) in seconds since UNIX epoch
+# TYPE meinberg_ltos_ntp_sys_leap_second_timestamp_seconds gauge
+meinberg_ltos_ntp_sys_leap_second_timestamp_seconds{host="mbg1.time.example.com",refid="GPS"} 1.4832288e+09
+
+# HELP meinberg_ltos_ntp_sys_precision_seconds Meinberg NTP precision in seconds
+# TYPE meinberg_ltos_ntp_sys_precision_seconds gauge
+meinberg_ltos_ntp_sys_precision_seconds{host="mbg1.time.example.com",refid="GPS"} 3.814697265625e-06
+
+# HELP meinberg_ltos_ntp_sys_root_delay_seconds Meinberg NTP root delay in seconds
+# TYPE meinberg_ltos_ntp_sys_root_delay_seconds gauge
+meinberg_ltos_ntp_sys_root_delay_seconds{host="mbg1.time.example.com",refid="GPS"} 0
+
+# HELP meinberg_ltos_ntp_sys_root_dispersion_seconds Meinberg NTP root dispersion in seconds
+# TYPE meinberg_ltos_ntp_sys_root_dispersion_seconds gauge
+meinberg_ltos_ntp_sys_root_dispersion_seconds{host="mbg1.time.example.com",refid="GPS"} 0.000124
+
+# HELP meinberg_ltos_ntp_sys_stratum Meinberg NTP stratum level
+# TYPE meinberg_ltos_ntp_sys_stratum gauge
+meinberg_ltos_ntp_sys_stratum{host="mbg1.time.example.com",refid="GPS"} 1
+
+# HELP meinberg_ltos_scrape_duration_seconds Duration of the scrape of the Meinberg LTOS device in seconds
+# TYPE meinberg_ltos_scrape_duration_seconds gauge
+meinberg_ltos_scrape_duration_seconds{target="http://localhost"} 0
+
+# HELP meinberg_ltos_storage_total_bytes Total size of the storage volume in bytes
+# TYPE meinberg_ltos_storage_total_bytes gauge
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/"} 1.12570368e+08
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/data"} 4.87266304e+08
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/dev/shm"} 1.16953088e+08
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/mnt/flash"} 4.11041792e+08
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/mnt/upload"} 1.03809024e+08
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/tmp"} 8.388608e+06
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/var"} 3.3554432e+07
+meinberg_ltos_storage_total_bytes{host="mbg1.time.example.com",mount="/www"} 1.6777216e+07
+
+# HELP meinberg_ltos_storage_used_bytes Used bytes of the storage volume
+# TYPE meinberg_ltos_storage_used_bytes gauge
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/"} 3.5278848e+07
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/data"} 2.16231936e+08
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/dev/shm"} 4096
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/mnt/flash"} 3.3132544e+08
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/mnt/upload"} 0
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/tmp"} 4096
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/var"} 4.427776e+06
+meinberg_ltos_storage_used_bytes{host="mbg1.time.example.com",mount="/www"} 65536
+
+# HELP meinberg_ltos_system_cpu_info CPU information as labels (model, serial, etc.)
+# TYPE meinberg_ltos_system_cpu_info gauge
+meinberg_ltos_system_cpu_info{host="mbg1.time.example.com",model="c05f1-v33",serial_number=""} 1
+
+# HELP meinberg_ltos_system_cpu_load_avg CPU load averaged over 1, 5, and 15 minutes
+# TYPE meinberg_ltos_system_cpu_load_avg gauge
+meinberg_ltos_system_cpu_load_avg{host="mbg1.time.example.com",period="1"} 0.48
+meinberg_ltos_system_cpu_load_avg{host="mbg1.time.example.com",period="15"} 0.57
+meinberg_ltos_system_cpu_load_avg{host="mbg1.time.example.com",period="5"} 0.66
+
+# HELP meinberg_ltos_system_info Meinberg system information as labels (e.g., model, serial number, host)
+# TYPE meinberg_ltos_system_info gauge
+meinberg_ltos_system_info{host="mbg1.time.example.com",model="M600",serial_number="0123456789"} 1
+
+# HELP meinberg_ltos_system_memory_bytes Total memory in bytes
+# TYPE meinberg_ltos_system_memory_bytes gauge
+meinberg_ltos_system_memory_bytes{host="mbg1.time.example.com"} 2.33910272e+08
+
+# HELP meinberg_ltos_system_memory_free_bytes Free memory in bytes
+# TYPE meinberg_ltos_system_memory_free_bytes gauge
+meinberg_ltos_system_memory_free_bytes{host="mbg1.time.example.com"} 1.65613568e+08
+
+# HELP meinberg_ltos_system_uptime_seconds System uptime in seconds
+# TYPE meinberg_ltos_system_uptime_seconds gauge
+meinberg_ltos_system_uptime_seconds{host="mbg1.time.example.com"} 130988.25
+
+# HELP meinberg_ltos_up Indicates if the Meinberg LTOS device is reachable (1 = up, 0 = down)
+# TYPE meinberg_ltos_up gauge
+meinberg_ltos_up{target="http://localhost"} 1
