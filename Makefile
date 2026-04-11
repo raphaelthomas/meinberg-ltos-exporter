@@ -28,6 +28,5 @@ test:
 	go test -v ./...
 
 clean:
-	rm -rv dist/
-	rm -v meinberg_ltos_exporter
-	rm -v tests/mock-key.pem tests/mock-cert.pem
+	@echo "Removing build artifacts, generated files, and test certificates..."
+	rm -rfv dist/ meinberg_ltos_exporter tests/*.pem
