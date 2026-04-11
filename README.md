@@ -10,6 +10,8 @@ Prometheus exporter `meinberg_ltos_exporter` is designed for Meinberg devices
 running LTOS. It retrieves the status of a device via its REST API and exposes
 the available data as Prometheus metrics.
 
+**New here?** Check out the [Getting Started guide](GETTING_STARTED.md).
+
 > [!IMPORTANT]
 > This exporter is **experimental** and has only been tested against a very
 > limited number of devices. It may not work correctly with all Meinberg
