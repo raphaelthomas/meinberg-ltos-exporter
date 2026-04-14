@@ -51,3 +51,12 @@ func TestForEachSlotWithModule(t *testing.T) {
 		})
 	}
 }
+
+func TestBoolToFloat64(t *testing.T) {
+	if got := boolToFloat64(true); got != 1.0 {
+		t.Errorf("boolToFloat64(true) = %v, want 1.0", got)
+	}
+	if got := boolToFloat64(false); got != 0.0 {
+		t.Errorf("boolToFloat64(false) = %v, want 0.0", got)
+	}
+}
