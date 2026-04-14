@@ -42,7 +42,9 @@ func TestCollector(t *testing.T) {
 
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
-				w.Write(jsonData)
+				if _, err := w.Write(jsonData); err != nil {
+					t.Errorf("failed to write mock response: %v", err)
+				}
 			}))
 			defer srv.Close()
 
