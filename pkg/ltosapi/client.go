@@ -42,14 +42,15 @@ func (c *Client) Target() string {
 
 // NewClient creates a new Meinberg LTOS API client
 func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool) *Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: ignoreSSLVerify}
+
 	return &Client{
 		baseURL:       baseURL,
 		authBasicUser: authBasicUser,
 		authBasicPass: authBasicPass,
 		httpClient: &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: ignoreSSLVerify},
-			},
+			Transport: transport,
 		},
 	}
 }

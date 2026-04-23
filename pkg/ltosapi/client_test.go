@@ -171,3 +171,47 @@ func TestFetchStatus_ContextCancelled(t *testing.T) {
 		t.Fatal("expected error when context is cancelled")
 	}
 }
+
+func TestNewClient_ClonesDefaultTransport(t *testing.T) {
+	client := NewClient("https://clock.example.com", "", "", true)
+
+	transport, ok := client.httpClient.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("transport type = %T, want *http.Transport", client.httpClient.Transport)
+	}
+
+	if transport.Proxy == nil {
+		t.Fatal("expected Proxy to be preserved from default transport")
+	}
+	if transport.DialContext == nil {
+		t.Fatal("expected DialContext to be preserved from default transport")
+	}
+	if !transport.ForceAttemptHTTP2 {
+		t.Fatal("expected ForceAttemptHTTP2 to be preserved from default transport")
+	}
+	if transport.TLSHandshakeTimeout == 0 {
+		t.Fatal("expected TLSHandshakeTimeout to be preserved from default transport")
+	}
+	if transport.TLSClientConfig == nil {
+		t.Fatal("expected TLSClientConfig to be set")
+	}
+	if !transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("expected InsecureSkipVerify=true")
+	}
+}
+
+func TestNewClient_DisablesInsecureSkipVerifyWhenRequested(t *testing.T) {
+	client := NewClient("https://clock.example.com", "", "", false)
+
+	transport, ok := client.httpClient.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("transport type = %T, want *http.Transport", client.httpClient.Transport)
+	}
+
+	if transport.TLSClientConfig == nil {
+		t.Fatal("expected TLSClientConfig to be set")
+	}
+	if transport.TLSClientConfig.InsecureSkipVerify {
+		t.Fatal("expected InsecureSkipVerify=false")
+	}
+}
