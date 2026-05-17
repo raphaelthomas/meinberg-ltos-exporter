@@ -21,9 +21,26 @@ func testLogger() *slog.Logger {
 }
 
 func TestTarget(t *testing.T) {
-	client := NewClient("https://clock.example.com", "", "", false)
+	client, err := NewClient("https://clock.example.com", "", "", false)
+	if err != nil {
+		t.Errorf("unexpected error calling NewClient()")
+	}
 	if got := client.Target(); got != "https://clock.example.com" {
 		t.Errorf("Target() = %q, want %q", got, "https://clock.example.com")
+	}
+}
+
+func TestInvalidTarget(t *testing.T) {
+	var err error
+
+	_, err = NewClient("", "", "", false)
+	if err == nil {
+		t.Errorf("expected error, got nil for empty baseURL")
+	}
+
+	_, err = NewClient("foobar", "", "", false)
+	if err == nil {
+		t.Errorf("expected error, got nil for baseURL 'foobar'")
 	}
 }
 
@@ -43,7 +60,7 @@ func TestFetchStatus_Success(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(srv.URL, "", "", false)
+	client, _ := NewClient(srv.URL, "", "", false)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -70,7 +87,7 @@ func TestFetchStatus_BasicAuth(t *testing.T) {
 	defer srv.Close()
 
 	t.Run("credentials sent when configured", func(t *testing.T) {
-		client := NewClient(srv.URL, "myuser", "mypass", false)
+		client, _ := NewClient(srv.URL, "myuser", "mypass", false)
 		_, err := client.FetchStatus(context.Background(), testLogger())
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -84,7 +101,7 @@ func TestFetchStatus_BasicAuth(t *testing.T) {
 	})
 
 	t.Run("no auth header when credentials empty", func(t *testing.T) {
-		client := NewClient(srv.URL, "", "", false)
+		client, _ := NewClient(srv.URL, "", "", false)
 		_, err := client.FetchStatus(context.Background(), testLogger())
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
@@ -113,7 +130,7 @@ func TestFetchStatus_Non200Status(t *testing.T) {
 			}))
 			defer srv.Close()
 
-			client := NewClient(srv.URL, "", "", false)
+			client, _ := NewClient(srv.URL, "", "", false)
 			status, err := client.FetchStatus(context.Background(), testLogger())
 			if err == nil {
 				t.Fatal("expected error for non-200 status code")
@@ -131,7 +148,7 @@ func TestFetchStatus_InvalidJSON(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(srv.URL, "", "", false)
+	client, _ := NewClient(srv.URL, "", "", false)
 	_, err := client.FetchStatus(context.Background(), testLogger())
 	if err == nil {
 		t.Fatal("expected error for invalid JSON response")
@@ -144,7 +161,7 @@ func TestFetchStatus_ConnectionRefused(t *testing.T) {
 	url := srv.URL
 	srv.Close()
 
-	client := NewClient(url, "", "", false)
+	client, _ := NewClient(url, "", "", false)
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -161,7 +178,7 @@ func TestFetchStatus_ContextCancelled(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(srv.URL, "", "", false)
+	client, _ := NewClient(srv.URL, "", "", false)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // cancel immediately
@@ -173,7 +190,7 @@ func TestFetchStatus_ContextCancelled(t *testing.T) {
 }
 
 func TestNewClient_ClonesDefaultTransport(t *testing.T) {
-	client := NewClient("https://clock.example.com", "", "", true)
+	client, _ := NewClient("https://clock.example.com", "", "", true)
 
 	transport, ok := client.httpClient.Transport.(*http.Transport)
 	if !ok {
@@ -201,7 +218,7 @@ func TestNewClient_ClonesDefaultTransport(t *testing.T) {
 }
 
 func TestNewClient_DisablesInsecureSkipVerifyWhenRequested(t *testing.T) {
-	client := NewClient("https://clock.example.com", "", "", false)
+	client, _ := NewClient("https://clock.example.com", "", "", false)
 
 	transport, ok := client.httpClient.Transport.(*http.Transport)
 	if !ok {

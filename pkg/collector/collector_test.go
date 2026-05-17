@@ -48,7 +48,7 @@ func TestCollector(t *testing.T) {
 			}))
 			defer srv.Close()
 
-			client := ltosapi.NewClient(srv.URL, "", "", false)
+			client, _ := ltosapi.NewClient(srv.URL, "", "", false)
 			cfg := collector.Config{
 				Timeout:      5 * time.Second,
 				System:       true,
