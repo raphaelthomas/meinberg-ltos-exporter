@@ -148,6 +148,10 @@ func main() {
 		"target", cfg.Target,
 	)
 
+	if cfg.IgnoreSSLVerify {
+		logger.Warn("TLS certificate verification disabled via --ignore-ssl-verify")
+	}
+
 	client, err := ltosapi.NewClient(cfg.Target, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
 	if err != nil {
 		logger.Error("failed to create LTOS API client", "error", err)
