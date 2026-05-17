@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 
 	"github.com/raphaelthomas/meinberg-ltos-exporter/pkg/ltosapi/models"
 )
@@ -29,7 +30,7 @@ const apiStatusPath = "/api/status"
 
 // Client represents a Meinberg LTOS API client
 type Client struct {
-	baseURL       string
+	baseURL       url.URL
 	authBasicUser string
 	authBasicPass string
 	httpClient    *http.Client
@@ -37,27 +38,35 @@ type Client struct {
 
 // Target returns the target base URL of the Meinberg LTOS API client
 func (c *Client) Target() string {
-	return c.baseURL
+	return c.baseURL.String()
 }
 
 // NewClient creates a new Meinberg LTOS API client
-func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool) *Client {
+func NewClient(baseURL string, authBasicUser, authBasicPass string, ignoreSSLVerify bool) (*Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: ignoreSSLVerify}
 
+	parsedURL, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, fmt.Errorf("invalid base URL: %w", err)
+	}
+	if parsedURL.Scheme == "" || parsedURL.Host == "" {
+		return nil, fmt.Errorf("invalid base URL: must include URL scheme and host")
+	}
+
 	return &Client{
-		baseURL:       baseURL,
+		baseURL:       *parsedURL,
 		authBasicUser: authBasicUser,
 		authBasicPass: authBasicPass,
 		httpClient: &http.Client{
 			Transport: transport,
 		},
-	}
+	}, nil
 }
 
 // FetchStatus fetches the target status from the Meinberg LTOS API
 func (c *Client) FetchStatus(ctx context.Context, logger *slog.Logger) (*models.StatusResponse, error) {
-	url := c.baseURL + apiStatusPath
+	url := c.baseURL.JoinPath(apiStatusPath).String()
 	logger = logger.With("url", url)
 
 	logger.Debug("Fetching status from Meinberg LTOS device API")

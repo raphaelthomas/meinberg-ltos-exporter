@@ -148,7 +148,11 @@ func main() {
 		"target", cfg.Target,
 	)
 
-	client := ltosapi.NewClient(cfg.Target, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
+	client, err := ltosapi.NewClient(cfg.Target, cfg.AuthBasicUser, cfg.AuthBasicPass, cfg.IgnoreSSLVerify)
+	if err != nil {
+		logger.Error("failed to create LTOS API client", "error", err)
+		os.Exit(1)
+	}
 
 	prometheus.MustRegister(collector.NewCollector(cfg.Collector, client, logger))
 	prometheus.MustRegister(versioncollector.NewCollector(prometheus.BuildFQName(collector.MetricNamespace, "", "exporter")))
