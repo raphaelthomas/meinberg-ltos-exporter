@@ -25,10 +25,10 @@ the available data as Prometheus metrics.
 
 The exporter has been tested with the following Meinberg LTOS devices:
 
-| Model | Receiver | LTOS Version |
-| ----- | -------- | ------------ |
-| M600  | grc180   | 7.10.008     |
-| M300  | pzf511   | 7.06.014-light |
+| Model | Receiver | LTOS Version     |
+| ----- | -------- | ------------     |
+| M600  | grc180   | 7.10.008 & later |
+| M300  | pzf511   | 7.06.014-light   |
 
 ## Docker
 
