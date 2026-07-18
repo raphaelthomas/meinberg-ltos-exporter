@@ -3,7 +3,6 @@
 [![Go Version](https://img.shields.io/github/go-mod/go-version/raphaelthomas/meinberg-ltos-exporter)](https://github.com/raphaelthomas/meinberg-ltos-exporter/blob/main/go.mod)
 [![Latest Release](https://img.shields.io/github/v/release/raphaelthomas/meinberg-ltos-exporter)](https://github.com/raphaelthomas/meinberg-ltos-exporter/releases/latest)
 [![License](https://img.shields.io/github/license/raphaelthomas/meinberg-ltos-exporter)](https://github.com/raphaelthomas/meinberg-ltos-exporter/blob/main/LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/raphaelthomas/meinberg-ltos-exporter)](https://goreportcard.com/report/github.com/raphaelthomas/meinberg-ltos-exporter)
 [![CI](https://github.com/raphaelthomas/meinberg-ltos-exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/raphaelthomas/meinberg-ltos-exporter/actions/workflows/ci.yml)
 
 Prometheus exporter `meinberg_ltos_exporter` is designed for Meinberg devices
