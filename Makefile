@@ -6,7 +6,7 @@ NEXT_VERSION := $(shell svu next --v0 --always)
 .PHONY: build run test-certs mock-api release test lint clean
 
 build:
-	go build -o meinberg_ltos_exporter .
+	go build -buildmode=pie -o meinberg_ltos_exporter .
 
 run: build
 	./meinberg_ltos_exporter --target https://localhost:8080 --web.listen-address localhost:10123 --ignore-ssl-verify $(if $(AUTH_USER),--auth-user $(AUTH_USER)) $(if $(AUTH_PASS),--auth-pass $(AUTH_PASS))

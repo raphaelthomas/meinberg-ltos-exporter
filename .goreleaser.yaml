@@ -9,6 +9,7 @@ builds:
   - binary: meinberg_ltos_exporter
     env:
       - CGO_ENABLED=0
+    buildmode: pie
     goos:
       - linux
       - windows
